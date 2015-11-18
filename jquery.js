@@ -4527,31 +4527,35 @@ jQuery.event = {
 		//@ button 指示当事件被触发时那个鼠标键被点击. 在2级DOM事件模型中规定了左键, 中键, 右键分别对应0,1,2
         //@ buttons 指示当事件被触发时那个鼠标键被点击. 在3级DOM事件模型中被引入, 用于只是更多的按键, 规定默认值, 左键, 右键, 中键对应0,1,2,4
         //@ clientX clientY 指示鼠标相对于窗口左上角的XY坐标, 窗口坐标
-        //@
+        //@ offsetX offsetY 分别表示鼠标指针相对于事件源元素左上角的X坐标和Y坐标
+        //@ pageX pageY 文档坐标
+        //@ screenX screenY 显示器坐标
+        //@ fromElement toElement 为标准化的属性:表示mouseover事件中鼠标离开的文档元素, 进入的文档元素.
+        //@ relatedTarget 表示与事件的目标元素相关的元素:对于事件mouseenter和mouseover来说，relatedTarget表示鼠标离开的元素;对于事件mouseleave或mouseout来说，则表示鼠标进入的元素;对干其他的事件类型来说，这个属性没有用.
 
         filter: function( event, original ) {
-			var eventDoc, doc, body,
-				button = original.button;
+            var eventDoc, doc, body,
+                button = original.button;
 
-			// Calculate pageX/Y if missing and clientX/Y available
-			if ( event.pageX == null && original.clientX != null ) {
-				eventDoc = event.target.ownerDocument || document;
-				doc = eventDoc.documentElement;
-				body = eventDoc.body;
+            // Calculate pageX/Y if missing and clientX/Y available
+            if ( event.pageX == null && original.clientX != null ) {
+                eventDoc = event.target.ownerDocument || document;
+                doc = eventDoc.documentElement;
+                body = eventDoc.body;
 
-				event.pageX = original.clientX + ( doc && doc.scrollLeft || body && body.scrollLeft || 0 ) - ( doc && doc.clientLeft || body && body.clientLeft || 0 );
-				event.pageY = original.clientY + ( doc && doc.scrollTop  || body && body.scrollTop  || 0 ) - ( doc && doc.clientTop  || body && body.clientTop  || 0 );
-			}
+                event.pageX = original.clientX + ( doc && doc.scrollLeft || body && body.scrollLeft || 0 ) - ( doc && doc.clientLeft || body && body.clientLeft || 0 );
+                event.pageY = original.clientY + ( doc && doc.scrollTop  || body && body.scrollTop  || 0 ) - ( doc && doc.clientTop  || body && body.clientTop  || 0 );
+            }
 
-			// Add which for click: 1 === left; 2 === middle; 3 === right
-			// Note: button is not normalized, so don't use it
-			if ( !event.which && button !== undefined ) {
-				event.which = ( button & 1 ? 1 : ( button & 2 ? 3 : ( button & 4 ? 2 : 0 ) ) );
-			}
+            // Add which for click: 1 === left; 2 === middle; 3 === right
+            // Note: button is not normalized, so don't use it
+            if ( !event.which && button !== undefined ) {
+                event.which = ( button & 1 ? 1 : ( button & 2 ? 3 : ( button & 4 ? 2 : 0 ) ) );
+            }
 
-			return event;
-		}
-	},
+            return event;
+        }
+    },
 
 	fix: function( event ) {  //@ 参数event可以是原生事件对象或jQuery事件对象
 		if ( event[ jQuery.expando ] ) {//@ 若event含有jQuery.expando属性, 证明是jQuery事件对象, 直接返回本对象, 不执行以下方法, 以下方法是对原生事件对象的封装和修正代码
@@ -4577,26 +4581,26 @@ jQuery.event = {
 		//@ fixhook.props中存放了当前事件的专属属性, this.props指向jQuery.event.props存放了事件的公共属性.
 		//@ 合并公共事件属性和专属事件属性
 
-		event = new jQuery.Event( originalEvent );
+		event = new jQuery.Event( originalEvent );//@ 把本原生事件对象封装为jQuery的事件对象.
 
 		i = copy.length;
-		while ( i-- ) {
+		while ( i-- ) { //@ 把前面合并的事件属性复制到本jQuery事件对象上.
 			prop = copy[ i ];
 			event[ prop ] = originalEvent[ prop ];
-		}
+		}//@ 使用倒序的方式来遍历, 性能比较好
 
 		// Support: Cordova 2.5 (WebKit) (#13255)
 		// All events should have a target; Cordova deviceready doesn't
-		if ( !event.target ) {
+		if ( !event.target ) { //@ 修正没有事件对象的指向为document对象, 在ie9以下, Safari2, load事件触发时没有event.target
 			event.target = document;
 		}
 
 		// Support: Safari 6.0+, Chrome<28
 		// Target should not be a text node (#504, #13143)
-		if ( event.target.nodeType === 3 ) {
+		if ( event.target.nodeType === 3 ) {//@ 不应该在文本节点上触发事件, 修正为其父元素
 			event.target = event.target.parentNode;
 		}
-
+        // 调用事件属性对象额修正方法fixHook.filter修正特殊的事件属性,并返回当前jQuery事件对象.
 		return fixHook.filter ? fixHook.filter( event, originalEvent ) : event;
 	},
 
