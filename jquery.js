@@ -4498,7 +4498,7 @@ jQuery.event = {
 		return handlerQueue;
 	},
 
-	// Includes some event props shared by KeyEvent and MouseEvent
+	// Includes some event props shared by KeyEvent and MouseEvent //@ 键盘事件和鼠标事件都可以处理的.
 	props: "altKey bubbles cancelable ctrlKey currentTarget eventPhase metaKey relatedTarget shiftKey target timeStamp view which".split(" "),
 
 	fixHooks: {},
@@ -4575,21 +4575,21 @@ jQuery.event = {
 			this.fixHooks[ type ] = fixHook =
 				rmouseEvent.test( type ) ? this.mouseHooks :
 					rkeyEvent.test( type ) ? this.keyHooks :
-					{};
+					{};//@ 检测是鼠标事件还是键盘事件
 		}
 		copy = fixHook.props ? this.props.concat( fixHook.props ) : this.props;
 		//@ fixhook.props中存放了当前事件的专属属性, this.props指向jQuery.event.props存放了事件的公共属性.
-		//@ 合并公共事件属性和专属事件属性
+		//@ 合并公共事件属性和专属事件属性, 因为鼠标/键盘各有专有事件属性,但都有共同属性, 所以需要合并公共的和专属的
 
 		event = new jQuery.Event( originalEvent );//@ 把本原生事件对象封装为jQuery的事件对象.
 
 		i = copy.length;
-		while ( i-- ) { //@ 把前面合并的事件属性复制到本jQuery事件对象上.
+		while ( i-- ) { //@ 把前面合并的事件属性及其对应的值, 复制到本jQuery事件对象里.
 			prop = copy[ i ];
-			event[ prop ] = originalEvent[ prop ];
+			event[ prop ] = originalEvent[ prop ]; //@ originalEvent[ prop ] = 原生事件的事件属性的值
 		}//@ 使用倒序的方式来遍历, 性能比较好
 
-		// Support: Cordova 2.5 (WebKit) (#13255)
+		// Support: Cordova 2.5 (WebKit) (#13255) //@ 在复制事件属性后检测target属性, 修正
 		// All events should have a target; Cordova deviceready doesn't
 		if ( !event.target ) { //@ 修正没有事件对象的指向为document对象, 在ie9以下, Safari2, load事件触发时没有event.target
 			event.target = document;
