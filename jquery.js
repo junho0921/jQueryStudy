@@ -4505,10 +4505,16 @@ jQuery.event = {
 
 	keyHooks: {
 		props: "char charCode key keyCode".split(" "),
+		//@ char表示一个按键产生的可打印字符码, 字符串型
+		//@ charCode表示一个按键产生的可打印字符码, 数值型
+		//@ key表示一个按键产生的较低层次的"虚拟按键码", 字符串型
+		//@ keyCode表示一个按键产生的较低层次的"虚拟按键码", 数值型
+		//@ 这四个属性有兼容的问题, 可以查看文件夹
 		filter: function( event, original ) {
 
 			// Add which for key events
 			if ( event.which == null ) {
+				//@ 键盘事件被触发, 事件属性which通常具有与keyCode相同的含义和值, 鼠标事件被触发则事件属性which表示那个鼠标按键点击
 				event.which = original.charCode != null ? original.charCode : original.keyCode;
 			}
 
@@ -4516,9 +4522,14 @@ jQuery.event = {
 		}
 	},
 
-	mouseHooks: {
+	mouseHooks: { //@ 鼠标事件的专属属性
 		props: "button buttons clientX clientY offsetX offsetY pageX pageY screenX screenY toElement".split(" "),
-		filter: function( event, original ) {
+		//@ button 指示当事件被触发时那个鼠标键被点击. 在2级DOM事件模型中规定了左键, 中键, 右键分别对应0,1,2
+        //@ buttons 指示当事件被触发时那个鼠标键被点击. 在3级DOM事件模型中被引入, 用于只是更多的按键, 规定默认值, 左键, 右键, 中键对应0,1,2,4
+        //@ clientX clientY 指示鼠标相对于窗口左上角的XY坐标, 窗口坐标
+        //@
+
+        filter: function( event, original ) {
 			var eventDoc, doc, body,
 				button = original.button;
 
@@ -4542,24 +4553,29 @@ jQuery.event = {
 		}
 	},
 
-	fix: function( event ) {
-		if ( event[ jQuery.expando ] ) {
+	fix: function( event ) {  //@ 参数event可以是原生事件对象或jQuery事件对象
+		if ( event[ jQuery.expando ] ) {//@ 若event含有jQuery.expando属性, 证明是jQuery事件对象, 直接返回本对象, 不执行以下方法, 以下方法是对原生事件对象的封装和修正代码
 			return event;
 		}
 
-		// Create a writable copy of the event object and normalize some properties
 		var i, prop, copy,
 			type = event.type,
 			originalEvent = event,
 			fixHook = this.fixHooks[ type ];
-
+		//@ 延伸到fixHooks对象: " fixHooks: {} "L4504
+		//@ jQuery.event.fixHooks 是事件属性修正对象集,用于修正键盘事件和鼠标事件的某些不兼容属性, 优先在该对象集获取本原生事件对象对应的修正对象.
+		//@ 该对象中集中存放了事件类型和修正对象的映射, 修正对象又含有属性props和修正方法filter()
+		//@ fixHooks初始值是一个空对象, 直到初始化事件便捷方法时才被初始化:
+			// 修正对象: 要么是键盘事件属性修正对象jQuery.event.keyHooks; 要么是鼠标事件属性修正对象jQuery.event.mouseHooks
 		if ( !fixHook ) {
 			this.fixHooks[ type ] = fixHook =
 				rmouseEvent.test( type ) ? this.mouseHooks :
-				rkeyEvent.test( type ) ? this.keyHooks :
-				{};
+					rkeyEvent.test( type ) ? this.keyHooks :
+					{};
 		}
 		copy = fixHook.props ? this.props.concat( fixHook.props ) : this.props;
+		//@ fixhook.props中存放了当前事件的专属属性, this.props指向jQuery.event.props存放了事件的公共属性.
+		//@ 合并公共事件属性和专属事件属性
 
 		event = new jQuery.Event( originalEvent );
 
