@@ -4498,23 +4498,23 @@ jQuery.event = {
 		return handlerQueue;
 	},
 
-	// Includes some event props shared by KeyEvent and MouseEvent //@ ¼üÅÌÊÂ¼şºÍÊó±êÊÂ¼ş¶¼¿ÉÒÔ´¦ÀíµÄ.
+	// Includes some event props shared by KeyEvent and MouseEvent //@ é”®ç›˜äº‹ä»¶å’Œé¼ æ ‡äº‹ä»¶éƒ½å¯ä»¥å¤„ç†çš„.
 	props: "altKey bubbles cancelable ctrlKey currentTarget eventPhase metaKey relatedTarget shiftKey target timeStamp view which".split(" "),
 
 	fixHooks: {},
 
 	keyHooks: {
 		props: "char charCode key keyCode".split(" "),
-		//@ char±íÊ¾Ò»¸ö°´¼ü²úÉúµÄ¿É´òÓ¡×Ö·ûÂë, ×Ö·û´®ĞÍ
-		//@ charCode±íÊ¾Ò»¸ö°´¼ü²úÉúµÄ¿É´òÓ¡×Ö·ûÂë, ÊıÖµĞÍ
-		//@ key±íÊ¾Ò»¸ö°´¼ü²úÉúµÄ½ÏµÍ²ã´ÎµÄ"ĞéÄâ°´¼üÂë", ×Ö·û´®ĞÍ
-		//@ keyCode±íÊ¾Ò»¸ö°´¼ü²úÉúµÄ½ÏµÍ²ã´ÎµÄ"ĞéÄâ°´¼üÂë", ÊıÖµĞÍ
-		//@ ÕâËÄ¸öÊôĞÔÓĞ¼æÈİµÄÎÊÌâ, ¿ÉÒÔ²é¿´ÎÄ¼ş¼Ğ
+		//@ charè¡¨ç¤ºä¸€ä¸ªæŒ‰é”®äº§ç”Ÿçš„å¯æ‰“å°å­—ç¬¦ç , å­—ç¬¦ä¸²å‹
+		//@ charCodeè¡¨ç¤ºä¸€ä¸ªæŒ‰é”®äº§ç”Ÿçš„å¯æ‰“å°å­—ç¬¦ç , æ•°å€¼å‹
+		//@ keyè¡¨ç¤ºä¸€ä¸ªæŒ‰é”®äº§ç”Ÿçš„è¾ƒä½å±‚æ¬¡çš„"è™šæ‹ŸæŒ‰é”®ç ", å­—ç¬¦ä¸²å‹
+		//@ keyCodeè¡¨ç¤ºä¸€ä¸ªæŒ‰é”®äº§ç”Ÿçš„è¾ƒä½å±‚æ¬¡çš„"è™šæ‹ŸæŒ‰é”®ç ", æ•°å€¼å‹
+		//@ è¿™å››ä¸ªå±æ€§æœ‰å…¼å®¹çš„é—®é¢˜, å¯ä»¥æŸ¥çœ‹æ–‡ä»¶å¤¹
 		filter: function( event, original ) {
 
 			// Add which for key events
 			if ( event.which == null ) {
-				//@ ¼üÅÌÊÂ¼ş±»´¥·¢, ÊÂ¼şÊôĞÔwhichÍ¨³£¾ßÓĞÓëkeyCodeÏàÍ¬µÄº¬ÒåºÍÖµ, Êó±êÊÂ¼ş±»´¥·¢ÔòÊÂ¼şÊôĞÔwhich±íÊ¾ÄÇ¸öÊó±ê°´¼üµã»÷
+				//@ é”®ç›˜äº‹ä»¶è¢«è§¦å‘, äº‹ä»¶å±æ€§whiché€šå¸¸å…·æœ‰ä¸keyCodeç›¸åŒçš„å«ä¹‰å’Œå€¼, é¼ æ ‡äº‹ä»¶è¢«è§¦å‘åˆ™äº‹ä»¶å±æ€§whichè¡¨ç¤ºé‚£ä¸ªé¼ æ ‡æŒ‰é”®ç‚¹å‡»
 				event.which = original.charCode != null ? original.charCode : original.keyCode;
 			}
 
@@ -4522,16 +4522,16 @@ jQuery.event = {
 		}
 	},
 
-	mouseHooks: { //@ Êó±êÊÂ¼şµÄ×¨ÊôÊôĞÔ
+	mouseHooks: { //@ é¼ æ ‡äº‹ä»¶çš„ä¸“å±å±æ€§
 		props: "button buttons clientX clientY offsetX offsetY pageX pageY screenX screenY toElement".split(" "),
-		//@ button Ö¸Ê¾µ±ÊÂ¼ş±»´¥·¢Ê±ÄÇ¸öÊó±ê¼ü±»µã»÷. ÔÚ2¼¶DOMÊÂ¼şÄ£ĞÍÖĞ¹æ¶¨ÁË×ó¼ü, ÖĞ¼ü, ÓÒ¼ü·Ö±ğ¶ÔÓ¦0,1,2
-        //@ buttons Ö¸Ê¾µ±ÊÂ¼ş±»´¥·¢Ê±ÄÇ¸öÊó±ê¼ü±»µã»÷. ÔÚ3¼¶DOMÊÂ¼şÄ£ĞÍÖĞ±»ÒıÈë, ÓÃÓÚÖ»ÊÇ¸ü¶àµÄ°´¼ü, ¹æ¶¨Ä¬ÈÏÖµ, ×ó¼ü, ÓÒ¼ü, ÖĞ¼ü¶ÔÓ¦0,1,2,4
-        //@ clientX clientY Ö¸Ê¾Êó±êÏà¶ÔÓÚ´°¿Ú×óÉÏ½ÇµÄXY×ø±ê, ´°¿Ú×ø±ê
-        //@ offsetX offsetY ·Ö±ğ±íÊ¾Êó±êÖ¸ÕëÏà¶ÔÓÚÊÂ¼şÔ´ÔªËØ×óÉÏ½ÇµÄX×ø±êºÍY×ø±ê
-        //@ pageX pageY ÎÄµµ×ø±ê
-        //@ screenX screenY ÏÔÊ¾Æ÷×ø±ê
-        //@ fromElement toElement Îª±ê×¼»¯µÄÊôĞÔ:±íÊ¾mouseoverÊÂ¼şÖĞÊó±êÀë¿ªµÄÎÄµµÔªËØ, ½øÈëµÄÎÄµµÔªËØ.
-        //@ relatedTarget ±íÊ¾ÓëÊÂ¼şµÄÄ¿±êÔªËØÏà¹ØµÄÔªËØ:¶ÔÓÚÊÂ¼şmouseenterºÍmouseoverÀ´Ëµ£¬relatedTarget±íÊ¾Êó±êÀë¿ªµÄÔªËØ;¶ÔÓÚÊÂ¼şmouseleave»òmouseoutÀ´Ëµ£¬Ôò±íÊ¾Êó±ê½øÈëµÄÔªËØ;¶Ô¸ÉÆäËûµÄÊÂ¼şÀàĞÍÀ´Ëµ£¬Õâ¸öÊôĞÔÃ»ÓĞÓÃ.
+		//@ button æŒ‡ç¤ºå½“äº‹ä»¶è¢«è§¦å‘æ—¶é‚£ä¸ªé¼ æ ‡é”®è¢«ç‚¹å‡». åœ¨2çº§DOMäº‹ä»¶æ¨¡å‹ä¸­è§„å®šäº†å·¦é”®, ä¸­é”®, å³é”®åˆ†åˆ«å¯¹åº”0,1,2
+        //@ buttons æŒ‡ç¤ºå½“äº‹ä»¶è¢«è§¦å‘æ—¶é‚£ä¸ªé¼ æ ‡é”®è¢«ç‚¹å‡». åœ¨3çº§DOMäº‹ä»¶æ¨¡å‹ä¸­è¢«å¼•å…¥, ç”¨äºåªæ˜¯æ›´å¤šçš„æŒ‰é”®, è§„å®šé»˜è®¤å€¼, å·¦é”®, å³é”®, ä¸­é”®å¯¹åº”0,1,2,4
+        //@ clientX clientY æŒ‡ç¤ºé¼ æ ‡ç›¸å¯¹äºçª—å£å·¦ä¸Šè§’çš„XYåæ ‡, çª—å£åæ ‡
+        //@ offsetX offsetY åˆ†åˆ«è¡¨ç¤ºé¼ æ ‡æŒ‡é’ˆç›¸å¯¹äºäº‹ä»¶æºå…ƒç´ å·¦ä¸Šè§’çš„Xåæ ‡å’ŒYåæ ‡
+        //@ pageX pageY æ–‡æ¡£åæ ‡
+        //@ screenX screenY æ˜¾ç¤ºå™¨åæ ‡
+        //@ fromElement toElement ä¸ºæ ‡å‡†åŒ–çš„å±æ€§:è¡¨ç¤ºmouseoveräº‹ä»¶ä¸­é¼ æ ‡ç¦»å¼€çš„æ–‡æ¡£å…ƒç´ , è¿›å…¥çš„æ–‡æ¡£å…ƒç´ .
+        //@ relatedTarget è¡¨ç¤ºä¸äº‹ä»¶çš„ç›®æ ‡å…ƒç´ ç›¸å…³çš„å…ƒç´ :å¯¹äºäº‹ä»¶mouseenterå’Œmouseoveræ¥è¯´ï¼ŒrelatedTargetè¡¨ç¤ºé¼ æ ‡ç¦»å¼€çš„å…ƒç´ ;å¯¹äºäº‹ä»¶mouseleaveæˆ–mouseoutæ¥è¯´ï¼Œåˆ™è¡¨ç¤ºé¼ æ ‡è¿›å…¥çš„å…ƒç´ ;å¯¹å¹²å…¶ä»–çš„äº‹ä»¶ç±»å‹æ¥è¯´ï¼Œè¿™ä¸ªå±æ€§æ²¡æœ‰ç”¨.
 
         filter: function( event, original ) {
             var eventDoc, doc, body,
@@ -4557,8 +4557,8 @@ jQuery.event = {
         }
     },
 
-	fix: function( event ) {  //@ ²ÎÊıevent¿ÉÒÔÊÇÔ­ÉúÊÂ¼ş¶ÔÏó»òjQueryÊÂ¼ş¶ÔÏó
-		if ( event[ jQuery.expando ] ) {//@ Èôeventº¬ÓĞjQuery.expandoÊôĞÔ, Ö¤Ã÷ÊÇjQueryÊÂ¼ş¶ÔÏó, Ö±½Ó·µ»Ø±¾¶ÔÏó, ²»Ö´ĞĞÒÔÏÂ·½·¨, ÒÔÏÂ·½·¨ÊÇ¶ÔÔ­ÉúÊÂ¼ş¶ÔÏóµÄ·â×°ºÍĞŞÕı´úÂë
+	fix: function( event ) {  //@ å‚æ•°eventå¯ä»¥æ˜¯åŸç”Ÿäº‹ä»¶å¯¹è±¡æˆ–jQueryäº‹ä»¶å¯¹è±¡
+		if ( event[ jQuery.expando ] ) {//@ è‹¥eventå«æœ‰jQuery.expandoå±æ€§, è¯æ˜æ˜¯jQueryäº‹ä»¶å¯¹è±¡, ç›´æ¥è¿”å›æœ¬å¯¹è±¡, ä¸æ‰§è¡Œä»¥ä¸‹æ–¹æ³•, ä»¥ä¸‹æ–¹æ³•æ˜¯å¯¹åŸç”Ÿäº‹ä»¶å¯¹è±¡çš„å°è£…å’Œä¿®æ­£ä»£ç 
 			return event;
 		}
 
@@ -4566,41 +4566,41 @@ jQuery.event = {
 			type = event.type,
 			originalEvent = event,
 			fixHook = this.fixHooks[ type ];
-		//@ ÑÓÉìµ½fixHooks¶ÔÏó: " fixHooks: {} "L4504
-		//@ jQuery.event.fixHooks ÊÇÊÂ¼şÊôĞÔĞŞÕı¶ÔÏó¼¯,ÓÃÓÚĞŞÕı¼üÅÌÊÂ¼şºÍÊó±êÊÂ¼şµÄÄ³Ğ©²»¼æÈİÊôĞÔ, ÓÅÏÈÔÚ¸Ã¶ÔÏó¼¯»ñÈ¡±¾Ô­ÉúÊÂ¼ş¶ÔÏó¶ÔÓ¦µÄĞŞÕı¶ÔÏó.
-		//@ ¸Ã¶ÔÏóÖĞ¼¯ÖĞ´æ·ÅÁËÊÂ¼şÀàĞÍºÍĞŞÕı¶ÔÏóµÄÓ³Éä, ĞŞÕı¶ÔÏóÓÖº¬ÓĞÊôĞÔpropsºÍĞŞÕı·½·¨filter()
-		//@ fixHooks³õÊ¼ÖµÊÇÒ»¸ö¿Õ¶ÔÏó, Ö±µ½³õÊ¼»¯ÊÂ¼ş±ã½İ·½·¨Ê±²Å±»³õÊ¼»¯:
-			// ĞŞÕı¶ÔÏó: ÒªÃ´ÊÇ¼üÅÌÊÂ¼şÊôĞÔĞŞÕı¶ÔÏójQuery.event.keyHooks; ÒªÃ´ÊÇÊó±êÊÂ¼şÊôĞÔĞŞÕı¶ÔÏójQuery.event.mouseHooks
+		//@ å»¶ä¼¸åˆ°fixHookså¯¹è±¡: " fixHooks: {} "L4504
+		//@ jQuery.event.fixHooks æ˜¯äº‹ä»¶å±æ€§ä¿®æ­£å¯¹è±¡é›†,ç”¨äºä¿®æ­£é”®ç›˜äº‹ä»¶å’Œé¼ æ ‡äº‹ä»¶çš„æŸäº›ä¸å…¼å®¹å±æ€§, ä¼˜å…ˆåœ¨è¯¥å¯¹è±¡é›†è·å–æœ¬åŸç”Ÿäº‹ä»¶å¯¹è±¡å¯¹åº”çš„ä¿®æ­£å¯¹è±¡.
+		//@ è¯¥å¯¹è±¡ä¸­é›†ä¸­å­˜æ”¾äº†äº‹ä»¶ç±»å‹å’Œä¿®æ­£å¯¹è±¡çš„æ˜ å°„, ä¿®æ­£å¯¹è±¡åˆå«æœ‰å±æ€§propså’Œä¿®æ­£æ–¹æ³•filter()
+		//@ fixHooksåˆå§‹å€¼æ˜¯ä¸€ä¸ªç©ºå¯¹è±¡, ç›´åˆ°åˆå§‹åŒ–äº‹ä»¶ä¾¿æ·æ–¹æ³•æ—¶æ‰è¢«åˆå§‹åŒ–:
+			// ä¿®æ­£å¯¹è±¡: è¦ä¹ˆæ˜¯é”®ç›˜äº‹ä»¶å±æ€§ä¿®æ­£å¯¹è±¡jQuery.event.keyHooks; è¦ä¹ˆæ˜¯é¼ æ ‡äº‹ä»¶å±æ€§ä¿®æ­£å¯¹è±¡jQuery.event.mouseHooks
 		if ( !fixHook ) {
 			this.fixHooks[ type ] = fixHook =
 				rmouseEvent.test( type ) ? this.mouseHooks :
 					rkeyEvent.test( type ) ? this.keyHooks :
-					{};//@ ¼ì²âÊÇÊó±êÊÂ¼ş»¹ÊÇ¼üÅÌÊÂ¼ş
+					{};//@ æ£€æµ‹æ˜¯é¼ æ ‡äº‹ä»¶è¿˜æ˜¯é”®ç›˜äº‹ä»¶
 		}
 		copy = fixHook.props ? this.props.concat( fixHook.props ) : this.props;
-		//@ fixhook.propsÖĞ´æ·ÅÁËµ±Ç°ÊÂ¼şµÄ×¨ÊôÊôĞÔ, this.propsÖ¸ÏòjQuery.event.props´æ·ÅÁËÊÂ¼şµÄ¹«¹²ÊôĞÔ.
-		//@ ºÏ²¢¹«¹²ÊÂ¼şÊôĞÔºÍ×¨ÊôÊÂ¼şÊôĞÔ, ÒòÎªÊó±ê/¼üÅÌ¸÷ÓĞ×¨ÓĞÊÂ¼şÊôĞÔ,µ«¶¼ÓĞ¹²Í¬ÊôĞÔ, ËùÒÔĞèÒªºÏ²¢¹«¹²µÄºÍ×¨ÊôµÄ
+		//@ fixhook.propsä¸­å­˜æ”¾äº†å½“å‰äº‹ä»¶çš„ä¸“å±å±æ€§, this.propsæŒ‡å‘jQuery.event.propså­˜æ”¾äº†äº‹ä»¶çš„å…¬å…±å±æ€§.
+		//@ åˆå¹¶å…¬å…±äº‹ä»¶å±æ€§å’Œä¸“å±äº‹ä»¶å±æ€§, å› ä¸ºé¼ æ ‡/é”®ç›˜å„æœ‰ä¸“æœ‰äº‹ä»¶å±æ€§,ä½†éƒ½æœ‰å…±åŒå±æ€§, æ‰€ä»¥éœ€è¦åˆå¹¶å…¬å…±çš„å’Œä¸“å±çš„
 
-		event = new jQuery.Event( originalEvent );//@ °Ñ±¾Ô­ÉúÊÂ¼ş¶ÔÏó·â×°ÎªjQueryµÄÊÂ¼ş¶ÔÏó.
+		event = new jQuery.Event( originalEvent );//@ æŠŠæœ¬åŸç”Ÿäº‹ä»¶å¯¹è±¡å°è£…ä¸ºjQueryçš„äº‹ä»¶å¯¹è±¡.
 
 		i = copy.length;
-		while ( i-- ) { //@ °ÑÇ°ÃæºÏ²¢µÄÊÂ¼şÊôĞÔ¼°Æä¶ÔÓ¦µÄÖµ, ¸´ÖÆµ½±¾jQueryÊÂ¼ş¶ÔÏóÀï.
+		while ( i-- ) { //@ æŠŠå‰é¢åˆå¹¶çš„äº‹ä»¶å±æ€§åŠå…¶å¯¹åº”çš„å€¼, å¤åˆ¶åˆ°æœ¬jQueryäº‹ä»¶å¯¹è±¡é‡Œ.
 			prop = copy[ i ];
-			event[ prop ] = originalEvent[ prop ]; //@ originalEvent[ prop ] = Ô­ÉúÊÂ¼şµÄÊÂ¼şÊôĞÔµÄÖµ
-		}//@ Ê¹ÓÃµ¹ĞòµÄ·½Ê½À´±éÀú, ĞÔÄÜ±È½ÏºÃ
+			event[ prop ] = originalEvent[ prop ]; //@ originalEvent[ prop ] = åŸç”Ÿäº‹ä»¶çš„äº‹ä»¶å±æ€§çš„å€¼
+		}//@ ä½¿ç”¨å€’åºçš„æ–¹å¼æ¥éå†, æ€§èƒ½æ¯”è¾ƒå¥½
 
-		// Support: Cordova 2.5 (WebKit) (#13255) //@ ÔÚ¸´ÖÆÊÂ¼şÊôĞÔºó¼ì²âtargetÊôĞÔ, ĞŞÕı
+		// Support: Cordova 2.5 (WebKit) (#13255) //@ åœ¨å¤åˆ¶äº‹ä»¶å±æ€§åæ£€æµ‹targetå±æ€§, ä¿®æ­£
 		// All events should have a target; Cordova deviceready doesn't
-		if ( !event.target ) { //@ ĞŞÕıÃ»ÓĞÊÂ¼ş¶ÔÏóµÄÖ¸ÏòÎªdocument¶ÔÏó, ÔÚie9ÒÔÏÂ, Safari2, loadÊÂ¼ş´¥·¢Ê±Ã»ÓĞevent.target
+		if ( !event.target ) { //@ ä¿®æ­£æ²¡æœ‰äº‹ä»¶å¯¹è±¡çš„æŒ‡å‘ä¸ºdocumentå¯¹è±¡, åœ¨ie9ä»¥ä¸‹, Safari2, loadäº‹ä»¶è§¦å‘æ—¶æ²¡æœ‰event.target
 			event.target = document;
 		}
 
 		// Support: Safari 6.0+, Chrome<28
 		// Target should not be a text node (#504, #13143)
-		if ( event.target.nodeType === 3 ) {//@ ²»Ó¦¸ÃÔÚÎÄ±¾½ÚµãÉÏ´¥·¢ÊÂ¼ş, ĞŞÕıÎªÆä¸¸ÔªËØ
+		if ( event.target.nodeType === 3 ) {//@ ä¸åº”è¯¥åœ¨æ–‡æœ¬èŠ‚ç‚¹ä¸Šè§¦å‘äº‹ä»¶, ä¿®æ­£ä¸ºå…¶çˆ¶å…ƒç´ 
 			event.target = event.target.parentNode;
 		}
-        // µ÷ÓÃÊÂ¼şÊôĞÔ¶ÔÏó¶îĞŞÕı·½·¨fixHook.filterĞŞÕıÌØÊâµÄÊÂ¼şÊôĞÔ,²¢·µ»Øµ±Ç°jQueryÊÂ¼ş¶ÔÏó.
+        // è°ƒç”¨äº‹ä»¶å±æ€§å¯¹è±¡é¢ä¿®æ­£æ–¹æ³•fixHook.filterä¿®æ­£ç‰¹æ®Šçš„äº‹ä»¶å±æ€§,å¹¶è¿”å›å½“å‰jQueryäº‹ä»¶å¯¹è±¡.
 		return fixHook.filter ? fixHook.filter( event, originalEvent ) : event;
 	},
 
