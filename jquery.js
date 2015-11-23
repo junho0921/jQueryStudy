@@ -4086,6 +4086,15 @@ jQuery.event = {
 	global: {},
 
 	add: function( elem, types, handler, data, selector ) {
+	//jQuery.event.add( this, types, fn, data, selector );on方法的模拟
+		//@ 为所有jQuery事件绑定方法提供底层支持.
+		//@ 当绑定事件时, 方法调用链为: .one/bind/delegate/live事件便捷方法() -> .on() -> jQuery.event.add() -> addEventListener/attachEvent/jQuery._data()
+
+		//@ elem 绑定事件的dom元素
+		//@ types 事件类型字符串
+		//@ handler 待绑定的事件监听函数
+		//@ data 传入的参数
+		//@ selector 用于绑定代理事件
 
 		var handleObjIn, eventHandle, tmp,
 			events, t, handleObj,
@@ -4538,20 +4547,22 @@ jQuery.event = {
                 button = original.button;
 
             // Calculate pageX/Y if missing and clientX/Y available
-            if ( event.pageX == null && original.clientX != null ) {
+            if ( event.pageX == null && original.clientX != null ) {//@ 若浏览器不支持pageX Y的情况, 计算出pageXY
                 eventDoc = event.target.ownerDocument || document;
                 doc = eventDoc.documentElement;
                 body = eventDoc.body;
 
                 event.pageX = original.clientX + ( doc && doc.scrollLeft || body && body.scrollLeft || 0 ) - ( doc && doc.clientLeft || body && body.clientLeft || 0 );
                 event.pageY = original.clientY + ( doc && doc.scrollTop  || body && body.scrollTop  || 0 ) - ( doc && doc.clientTop  || body && body.clientTop  || 0 );
-            }
+				//@ 距文档左坐标pageX = 距窗口左坐标 clientX + 水平文档偏移 - 文档左边框厚度
+				//@ 距文档上坐标pageY = 距窗口上坐标 clientY + 垂直滚动偏移 - 文档上边框厚度
+			}
 
             // Add which for click: 1 === left; 2 === middle; 3 === right
             // Note: button is not normalized, so don't use it
             if ( !event.which && button !== undefined ) {
                 event.which = ( button & 1 ? 1 : ( button & 2 ? 3 : ( button & 4 ? 2 : 0 ) ) );
-            }
+            }//@ 事件对象里没有which属性, 就在event.button里寻找 , 但button属性不是标准属性, 需要以button的非标准值转为标准的值.
 
             return event;
         }
@@ -4829,6 +4840,8 @@ if ( !support.focusinBubbles ) {
 jQuery.fn.extend({
 
 	on: function( types, selector, data, fn, /*INTERNAL*/ one ) {
+		//@ data 传给fn的参数
+		//@ fn 带绑定的监听函数，当对应类型的事件被触发时, 该监听函数将被执行.
 		var origFn, type;
 
 		// Types can be a map of types/handlers
@@ -4843,7 +4856,7 @@ jQuery.fn.extend({
 				this.on( type, selector, data, types[ type ], one );
 			}
 			return this;
-		}
+		}// 说明可以接受on({click:fn1, press:fn2},selector, data, one)的模式
 
 		if ( data == null && fn == null ) {
 			// ( types, fn )
@@ -4866,10 +4879,11 @@ jQuery.fn.extend({
 		} else if ( !fn ) {
 			return this;
 		}
+		//@ 通过对参数顺序和参数类型的巧妙设计和检测, 是的该方法的参数格式变得非常灵活和方便, 这点非常值得借鉴.
 
 		if ( one === 1 ) {
 			origFn = fn;
-			fn = function( event ) {
+			fn = function( event ) {//@ 重新进行封装, 先保留原函数, 修改为一个先移除事件再触发监听函数的新监听函数.
 				// Can use an empty set, since event contains the info
 				jQuery().off( event );
 				return origFn.apply( this, arguments );
