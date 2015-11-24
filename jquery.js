@@ -4828,7 +4828,12 @@ if ( !support.focusinBubbles ) {
 
 jQuery.fn.extend({
 
-	on: function( types, selector, data, fn, /*INTERNAL*/ one ) {
+	on: function( types, selector, data, fn, /*INTERNAL*/ one ) { //@ 为匹配元素绑定一个或多个类型的监听函数.
+		//@ types 示例: "click._button press._input", 这参数可以是浏览器标准事件类型, 也可以是用户自定义事件类型.
+		//@ selector 选择器表达式字符串, 用于绑定代理事件. 有selector时匹配的元素为代理元素, 当事件直接发生在代理元素上, 监听函数就不会执行, 只有在当事件从后代元素冒泡到代理元素上时,才会用参数selector匹配冒泡路径上的后代元素, 然后在匹配成功的后代元素上执行监听函数.
+		//@ data
+		//@ fn
+
 		var origFn, type;
 
 		// Types can be a map of types/handlers
@@ -4840,7 +4845,7 @@ jQuery.fn.extend({
 				selector = undefined;
 			}
 			for ( type in types ) {
-				this.on( type, selector, data, types[ type ], one );
+				this.on( type, selector, data, types[ type ], one ); //@ 若参数events是对象, 则遍历该对象, 递归调用方法on来绑定
 			}
 			return this;
 		}
@@ -4865,20 +4870,23 @@ jQuery.fn.extend({
 			fn = returnFalse;
 		} else if ( !fn ) {
 			return this;
-		}
+		}//@ 根据参数类型修正参数
+		//@ 基于参数是由几种不同的类型组成, 可以从类型来判断, 如参数types, selector应该是string, fn必然是function, 其次第一参数type是必须的.
+		//@ 所以提供了多种写法:
+		//@ 1, on(type, fn) 2, on(type, fn) 3, on(types, selector, fn) 4,on( types, selector, data, fn)
 
 		if ( one === 1 ) {
 			origFn = fn;
 			fn = function( event ) {
 				// Can use an empty set, since event contains the info
-				jQuery().off( event );
+				jQuery().off( event );// 若one === 1, 触发执行fn之前执行解绑方法.
 				return origFn.apply( this, arguments );
 			};
 			// Use same guid so caller can remove using origFn
 			fn.guid = origFn.guid || ( origFn.guid = jQuery.guid++ );
 		}
 		return this.each( function() {
-			jQuery.event.add( this, types, fn, data, selector );
+			jQuery.event.add( this, types, fn, data, selector );// 遍历当前元素集合, 为每个元素调用方法jQuery.event.add来绑定事件!
 		});
 	},
 	one: function( types, selector, data, fn ) {
