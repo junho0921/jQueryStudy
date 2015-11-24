@@ -4086,6 +4086,15 @@ jQuery.event = {
 	global: {},
 
 	add: function( elem, types, handler, data, selector ) {
+	//jQuery.event.add( this, types, fn, data, selector );on方法的模拟
+		//@ 为所有jQuery事件绑定方法提供底层支持.
+		//@ 当绑定事件时, 方法调用链为: .one/bind/delegate/live事件便捷方法() -> .on() -> jQuery.event.add() -> addEventListener/attachEvent/jQuery._data()
+
+		//@ elem 绑定事件的dom元素
+		//@ types 事件类型字符串
+		//@ handler 待绑定的事件监听函数
+		//@ data 传入的参数
+		//@ selector 用于绑定代理事件
 
 		var handleObjIn, eventHandle, tmp,
 			events, t, handleObj,
@@ -4538,20 +4547,22 @@ jQuery.event = {
                 button = original.button;
 
             // Calculate pageX/Y if missing and clientX/Y available
-            if ( event.pageX == null && original.clientX != null ) {
+            if ( event.pageX == null && original.clientX != null ) {//@ 若浏览器不支持pageX Y的情况, 计算出pageXY
                 eventDoc = event.target.ownerDocument || document;
                 doc = eventDoc.documentElement;
                 body = eventDoc.body;
 
                 event.pageX = original.clientX + ( doc && doc.scrollLeft || body && body.scrollLeft || 0 ) - ( doc && doc.clientLeft || body && body.clientLeft || 0 );
                 event.pageY = original.clientY + ( doc && doc.scrollTop  || body && body.scrollTop  || 0 ) - ( doc && doc.clientTop  || body && body.clientTop  || 0 );
-            }
+				//@ 距文档左坐标pageX = 距窗口左坐标 clientX + 水平文档偏移 - 文档左边框厚度
+				//@ 距文档上坐标pageY = 距窗口上坐标 clientY + 垂直滚动偏移 - 文档上边框厚度
+			}
 
             // Add which for click: 1 === left; 2 === middle; 3 === right
             // Note: button is not normalized, so don't use it
             if ( !event.which && button !== undefined ) {
                 event.which = ( button & 1 ? 1 : ( button & 2 ? 3 : ( button & 4 ? 2 : 0 ) ) );
-            }
+            }//@ 事件对象里没有which属性, 就在event.button里寻找 , 但button属性不是标准属性, 需要以button的非标准值转为标准的值.
 
             return event;
         }
@@ -4828,12 +4839,11 @@ if ( !support.focusinBubbles ) {
 
 jQuery.fn.extend({
 
-	on: function( types, selector, data, fn, /*INTERNAL*/ one ) { //@ 为匹配元素绑定一个或多个类型的监听函数.
+	on: function( types, selector, data, fn, /*INTERNAL*/ one ) {//@ 为匹配元素绑定一个或多个类型的监听函数.
 		//@ types 示例: "click._button press._input", 这参数可以是浏览器标准事件类型, 也可以是用户自定义事件类型.
 		//@ selector 选择器表达式字符串, 用于绑定代理事件. 有selector时匹配的元素为代理元素, 当事件直接发生在代理元素上, 监听函数就不会执行, 只有在当事件从后代元素冒泡到代理元素上时,才会用参数selector匹配冒泡路径上的后代元素, 然后在匹配成功的后代元素上执行监听函数.
-		//@ data
-		//@ fn
-
+		//@ data 传给fn的参数
+		//@ fn 带绑定的监听函数，当对应类型的事件被触发时, 该监听函数将被执行.
 		var origFn, type;
 
 		// Types can be a map of types/handlers
@@ -4848,7 +4858,7 @@ jQuery.fn.extend({
 				this.on( type, selector, data, types[ type ], one ); //@ 若参数events是对象, 则遍历该对象, 递归调用方法on来绑定
 			}
 			return this;
-		}
+		}// 说明可以接受on({click:fn1, press:fn2},selector, data, one)的模式
 
 		if ( data == null && fn == null ) {
 			// ( types, fn )
@@ -4871,13 +4881,13 @@ jQuery.fn.extend({
 		} else if ( !fn ) {
 			return this;
 		}//@ 根据参数类型修正参数
-		//@ 基于参数是由几种不同的类型组成, 可以从类型来判断, 如参数types, selector应该是string, fn必然是function, 其次第一参数type是必须的.
+		//@ 通过对参数顺序和参数类型的巧妙设计和检测, 是的该方法的参数格式变得非常灵活和方便, 这点非常值得借鉴.
 		//@ 所以提供了多种写法:
 		//@ 1, on(type, fn) 2, on(type, fn) 3, on(types, selector, fn) 4,on( types, selector, data, fn)
 
 		if ( one === 1 ) {
 			origFn = fn;
-			fn = function( event ) {
+			fn = function( event ) {//@ 重新进行封装, 先保留原函数, 修改为一个先移除事件再触发监听函数的新监听函数.
 				// Can use an empty set, since event contains the info
 				jQuery().off( event );// 若one === 1, 触发执行fn之前执行解绑方法.
 				return origFn.apply( this, arguments );
