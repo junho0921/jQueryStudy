@@ -4111,62 +4111,69 @@
 			}
 
 			// Caller can pass in an object of custom data in lieu of the handler
-			if ( handler.handler ) {
+			if ( handler.handler ) {//@ 允许handler的形式是{handler:func, selector:obj}
 				handleObjIn = handler;
 				handler = handleObjIn.handler;
 				selector = handleObjIn.selector;
 			}
 
 			// Make sure that the handler has a unique ID, used to find/remove it later
-			if ( !handler.guid ) {
+			if ( !handler.guid ) {//@ 为每个见ring函数分配一个唯一标识guid
 				handler.guid = jQuery.guid++;
 			}
 
 			// Init the element's event structure and main handler, if this is the first
-			if ( !(events = elemData.events) ) {
+			if ( !(events = elemData.events) ) {//@ 读取缓存数据里的绑定事件, 没有就创建一个新对象. 事件缓存对象events用于存放当前元素关联的所有监听函数.
 				events = elemData.events = {};
 			}
-			if ( !(eventHandle = elemData.handle) ) {
+			if ( !(eventHandle = elemData.handle) ) {//@ 读取缓存数据里的主监听函数
+				//@ 缓存数据没有主监听函数, 表示从未在当前元素上使用jQuery绑定过事件
 				eventHandle = elemData.handle = function( e ) {
+					//@ 初始化一个主监听函数, 主监听函数会被当前元素的所有类型的事件所公用.
+					//@ 每个DOM元素, jQuery事件系统只会为之分配一个主监听函数,并且所有类型的事件在被绑定时, 真正会绑定到元素上的只有这个主监听函数.
 					// Discard the second event of a jQuery.event.trigger() and
 					// when an event is called after a page has unloaded
 					return typeof jQuery !== strundefined && jQuery.event.triggered !== e.type ?
-						jQuery.event.dispatch.apply( elem, arguments ) : undefined;
+						jQuery.event.dispatch.apply( elem, arguments ) : undefined;//@ 实际的方法是使用jQuery.event.dispatch
 				};
 			}
 
 			// Handle multiple events separated by a space
 			types = ( types || "" ).match( rnotwhite ) || [ "" ];
 			t = types.length;
-			while ( t-- ) {
+			while ( t-- ) {//@ 简洁的倒序遍历
 				tmp = rtypenamespace.exec( types[t] ) || [];
 				type = origType = tmp[1];
-				namespaces = ( tmp[2] || "" ).split( "." ).sort();
-
+				namespaces = ( tmp[2] || "" ).split( "." ).sort();//@ 重新排序
+				//@ 把每个事件type的字符串区分为
+				//@ 1,事件类型
+				//@ 2,命名空间, 命名空间是对事件类型的增强, 使得对事件的管理变得更加灵活和安全. 若在绑定事件时设置了命名空间, 则可通过命名空间独立地执行指定的监听函数, 不会执行同类型的其他监听函数. 另外, 在手动触发事件时, 如果事件类型以感叹号"!"结尾, 则只执行没有命名空间的事件, 而不会执行设置了命名空间的事件. 注意: 命名空间是无层级关系的.
+				//@ demo: types[t] = "a.k.c.g" 处理后:type = "a", namespace = ["c", "g", "k]
 				// There *must* be a type, no attaching namespace-only handlers
 				if ( !type ) {
 					continue;
 				}
 
 				// If event changes its type, use the special event handlers for the changed type
-				special = jQuery.event.special[ type ] || {};
+				special = jQuery.event.special[ type ] || {};// 看本事件类型是否jQuery.event.special修正对象属性里的类型, 否则是{}
 
 				// If selector defined, determine special event api type, otherwise given type
-				type = ( selector ? special.delegateType : special.bindType ) || type;
-
+				type = ( selector ? special.delegateType : special.bindType ) || type;//@ 在有selector的情况, 绑定的是代理事件,可能把当前事件类型修正为可冒泡的事件类型(spacial.delegateType)
+				//@ 没有selector就是普通的事件绑定, 也有可能需要修正为支持度更好的事件类型(special.bindType)
 				// Update special based on newly reset type
 				special = jQuery.event.special[ type ] || {};
 
 				// handleObj is passed to all event handlers
-				handleObj = jQuery.extend({
-					type: type,
-					origType: origType,
-					data: data,
-					handler: handler,
-					guid: handler.guid,
-					selector: selector,
+				handleObj = jQuery.extend({ //@ 封装监听函数为监听对象
+					//@ 附加一些增强属性, 用来支持事件模拟、事件移除、事件触发、事件代理、事件命名空间等功能
+					type: type,//@ 事件类型, 不含命名空间, 经过修正
+					origType: origType,//@ 原始事件类型, 不含命名空间,未被修正, 所以
+					data: data,//@ 自定义的事件数据
+					handler: handler,//@ 传入监听函数
+					guid: handler.guid,//@ 唯一标识guid
+					selector: selector,//@ selector
 					needsContext: selector && jQuery.expr.match.needsContext.test( selector ),
-					namespace: namespaces.join(".")
+					namespace: namespaces.join(".")//@ 命名空间字符串
 				}, handleObjIn );
 
 				// Init the event handler queue if we're the first
