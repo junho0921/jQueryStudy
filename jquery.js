@@ -4101,11 +4101,15 @@
 				special, handlers, type, namespaces, origType,
 				elemData = data_priv.get( elem );
 			//@ elemData指向DOM元素关联的缓存对象
-			//@ eventHandle指向主监听函数
 			//@ events 指向DOM元素关联的事件缓存对象
+			//@ handlers 指向事件类型对应的监听对象数组
+
+			//@ eventHandle指向主监听函数
 			//@ handleObj 封装了事件函数的监听对象
+			//@ handleObjIn 传入的监听对象
 			//@ 隐形前提(在缓存数据里有检验): elem不可能是文本节点或注释, 因为不可能用文本节点绑定事件，因为浏览器不会在文本节点上触发事件，也不会在注释节点上绑定事件，因为这样没有意义。
-			// Don't attach events to noData or text/comment nodes (but allow plain objects) 
+
+			// Don't attach events to noData or text/comment nodes (but allow plain objects)
 			if ( !elemData ) { //@ jQuery对事件的管理是基于数据缓存模块来实现的, 需要在DOM元素上附加扩展属性以关联数据.
 				return;
 			}
@@ -4167,29 +4171,30 @@
 				handleObj = jQuery.extend({ //@ 封装监听函数为监听对象
 					//@ 附加一些增强属性, 用来支持事件模拟、事件移除、事件触发、事件代理、事件命名空间等功能
 					type: type,//@ 事件类型, 不含命名空间, 经过修正
-					origType: origType,//@ 原始事件类型, 不含命名空间,未被修正, 所以
+					origType: origType,//@ 原始事件类型, 不含命名空间,未被修正, 注意: 移除事件时比较的是属性origType, 不是属性type
 					data: data,//@ 自定义的事件数据
 					handler: handler,//@ 传入监听函数
 					guid: handler.guid,//@ 唯一标识guid
-					selector: selector,//@ selector
-					needsContext: selector && jQuery.expr.match.needsContext.test( selector ),
-					namespace: namespaces.join(".")//@ 命名空间字符串
+					selector: selector,//@ 传入选择器表达式selector 用于事件代理, 当代理事件被触发时, 用该属性过滤代理元素的后代元素
+					needsContext: selector && jQuery.expr.match.needsContext.test( selector ),//@ 缓存简单选择器表达式的解析结果, 用于加快对后代元素的过滤速度
+					namespace: namespaces.join(".")//@ 排序后的命名空间字符串
 				}, handleObjIn );
 
 				// Init the event handler queue if we're the first
-				if ( !(handlers = events[ type ]) ) {
+				if ( !(handlers = events[ type ]) ) {//@ 初始化监听对象数组, 并绑定主监听函数.
 					handlers = events[ type ] = [];
-					handlers.delegateCount = 0;
+					handlers.delegateCount = 0;//@ 新数组赋值属性delegateCount, 用于只是下一个代理监听对象的插入位置,位置为"位置计数器", 往后累加
 
 					// Only use addEventListener if the special events handler returns false
-					if ( !special.setup || special.setup.call( elem, data, namespaces, eventHandle ) === false ) {
+					//@ 绑定主监听函数eventHandle:
+					if ( !special.setup || special.setup.call( elem, data, namespaces, eventHandle ) === false ) {//@ 优先调用修改对象的修正方法setup()
 						if ( elem.addEventListener ) {
-							elem.addEventListener( type, eventHandle, false );
+							elem.addEventListener( type, eventHandle, false );//@ 没有sepcial的话,使用addEventListener绑定主监听函数
 						}
 					}
 				}
 
-				if ( special.add ) {
+				if ( special.add ) {//@ 若修正对象有修正方法add(), 则先调用修正方法add()绑定监听函数
 					special.add.call( elem, handleObj );
 
 					if ( !handleObj.handler.guid ) {
@@ -4199,12 +4204,15 @@
 
 				// Add to the element's handler list, delegates in front
 				if ( selector ) {
+					//@ 有selector的话, 则绑定的是代理事件,把代理监听对象那个插入属性handlers.delegateCount所指定的位置????
 					handlers.splice( handlers.delegateCount++, 0, handleObj );
 				} else {
+					//@ 将监听对象handleObj插入监听对象数组handlers中, 普通的插入, 插在最尾
 					handlers.push( handleObj );
 				}
 
 				// Keep track of which events have ever been used, for event optimization
+				//@ 记录绑定过的事件类型.当某个事件被手动触发, 可以方便通过这个标记来检查是否绑定过该类型的事件.
 				jQuery.event.global[ type ] = true;
 			}
 
@@ -4212,46 +4220,63 @@
 
 		// Detach an event or set of events from an element
 		remove: function( elem, types, handler, selector, mappedTypes ) {
+			//@ remove用于移除DOM元素上绑定的一个或多个类型的事件监听函数. 这方法为所有jQuery事件移除方法提供底层支持.
+			//@ elem 待移除事件的DOM元素
+			//@ types 事件类型字符串
+			//@ handler 待移除的事件监听函数
+			//@ selector 一个选择器表达式字符串
+			//@ mappedTypes 布尔值, 只是移除事件时是否严格检测事件的类型, 默认为false需要检测已绑定的事件的原始类型(handleObj.origType)与传入事件类型types是否匹配,若为true则执行检测
 
 			var j, origCount, tmp,
 				events, t, handleObj,
 				special, handlers, type, namespaces, origType,
 				elemData = data_priv.hasData( elem ) && data_priv.get( elem );
+			//@ elemData 指向当前元素的关联的缓存对象
+			//@ origType 未修正的事件类型
+			//@ namespaces 命名空间
+			//@ origCount 事件类型对应的监听对象数组的长度
+			//@ special 指向特殊事件类型对应的修正对象
+			//@ handleObj 指向封装了监听函数的监听对象
 
 			if ( !elemData || !(events = elemData.events) ) {
-				return;
-			}
+				return;// @ 当前元素没有关联的缓存数据或事件缓存对象, 则忽略本次调用
+			}//@ 变量events现在已经更新了!   (因有elemDate, 所以!elemData == false, 所以执行events = elemData.events后检测判断)
 
 			// Once for each type.namespace in types; type may be omitted
-			types = ( types || "" ).match( rnotwhite ) || [ "" ];
+			types = ( types || "" ).match( rnotwhite ) || [ "" ];//@ 若types是undefined, 没有传值, 那么types会重新赋值为[""]新数值,长度是1
 			t = types.length;
 			while ( t-- ) {
 				tmp = rtypenamespace.exec( types[t] ) || [];
 				type = origType = tmp[1];
-				namespaces = ( tmp[2] || "" ).split( "." ).sort();
+				namespaces = ( tmp[2] || "" ).split( "." ).sort();//@ 这些调整近似于add方法里对应的
 
 				// Unbind all events (on this namespace, if provided) for the element
-				if ( !type ) {
-					for ( type in events ) {
-						jQuery.event.remove( elem, type + types[ t ], handler, selector, true );
+				if ( !type ) {//@ 若type是空的, 可以说是types没有传值, 或是undefined
+					for ( type in events ) { //@ for循环里, 变量type更新指向
+						//@ 遍历当前元素关联的事件缓存对象, 为其中的每个事件类型递归调用方法jQuery.event.remove
+						jQuery.event.remove( elem, type + types[ t ], handler, selector, true );//@ 个人理解: 使用remove方法来清空 监听对象集events 里的所有监听方法
 					}
 					continue;
 				}
 
-				special = jQuery.event.special[ type ] || {};
+				special = jQuery.event.special[ type ] || {};//@ 尝试获取修正对象集special里对应的修正对象
 				type = ( selector ? special.delegateType : special.bindType ) || type;
 				handlers = events[ type ] || [];
 				tmp = tmp[2] && new RegExp( "(^|\\.)" + namespaces.join("\\.(?:.*\\.|)") + "(\\.|$)" );
+				//@ tmp = 以命名空间namespaces转换为一个正则, 用于检测已绑定事件的命名空间是否与参数types中的命名空间匹配
+				//@ demo : namespace = "ns2.ns1", 被转换为/(^|\.)ns1\.(?:.*\.|)ns2(\.|$)/ 被填充的(?:.*\.)表示"ns1"和"ns2"之间可以包含其他的命名空间
+				//@ 等于方法function(string){ return new RegExp( "(^|\\.)" + string.split(".").sort().join("\\.(?:.*\\.|)") + "(\\.|$)" )};
 
 				// Remove matching events
-				origCount = j = handlers.length;
+				origCount = j = handlers.length;//@ 遍历本DOM缓存数据里监听对象数组elemData.events[type]本事件类型, 里的每个监听对象
 				while ( j-- ) {
 					handleObj = handlers[ j ];
 
-					if ( ( mappedTypes || origType === handleObj.origType ) &&
-						( !handler || handler.guid === handleObj.guid ) &&
-						( !tmp || tmp.test( handleObj.namespace ) ) &&
-						( !selector || selector === handleObj.selector || selector === "**" && handleObj.selector ) ) {
+					if ( ( mappedTypes || origType === handleObj.origType ) && //@ mappedTypes==true的话就不需要检测原始事件类型, 否则匹配type事件类型
+						( !handler || handler.guid === handleObj.guid ) && //@ 匹配绑定事件handler, 允许没有handler
+						( !tmp || tmp.test( handleObj.namespace ) ) &&//@ 正则匹配命名空间, 允许没有命名空间
+						( !selector || selector === handleObj.selector || selector === "**" && handleObj.selector ) //@ 匹配selector , 允许selector是"**"的写法或没有
+					) { // 匹配成功后
 						handlers.splice( j, 1 );
 
 						if ( handleObj.selector ) {
@@ -4414,17 +4439,31 @@
 		},
 
 		dispatch: function( event ) {
+			//@ dispatch负责分发事件和执行监听函数, 为执行主监听函数的底层实现
 
+			//@ 当浏览器触发事件时, 方法调用链为: 主监听函数 -> jQuery.event.dispatch -> 监听函数
+			//@ 手动触发事件时, 方法调用链为: 事件便捷方法() -> .trigger/triggerHandler() -> jQuery.event.tiggger() -> 主监听函数 -> jQuery.event.dispatch() -> 监听函数
+			//@ 特点: 1, jQuery分配给DOM元素各自唯一的主监听函数
+			//2, 绑定事件时,只有主监听函数会被真正绑定到元素上, 而传入的监听函数则被封装为监听对象, 存储在事件类型对应的监听对象数组events[type]中.
+
+			//@ 参数event若是浏览器触发的则在以下代码会被封装为jQuery事件对象, 若是手动触发的则是jQuery事件对象, 注意, IE9以下的浏览器在触发事件时不会吧原生事件对象传给监听函数, 而是需要通过window.event来获取
 			// Make a writable jQuery.Event from the native event object
-			event = jQuery.event.fix( event );
+			event = jQuery.event.fix( event );//@ 封装event为jQuery对象, 修正原生事件对象的不兼容属性
 
 			var i, j, ret, matched, handleObj,
 				handlerQueue = [],
 				args = slice.call( arguments ),
 				handlers = ( data_priv.get( this, "events" ) || {} )[ event.type ] || [],
 				special = jQuery.event.special[ event.type ] || {};
+			//@ handlers 指向当前事件类型对应的监听对象数组
+			//@ args 把参数对象转为真正的数组
+			//@ retb 监听函数的返回值
+			//@ matched 是待执行队列handlerQueue中的一个元素
+			//@ handleObj 监听对象
+			//@ special是??
 
 			// Use the fix-ed jQuery.Event rather than the (read-only) native event
+			//@ 修正参数args[0]与事件对象event
 			args[0] = event;
 			event.delegateTarget = this;
 
@@ -4708,9 +4747,12 @@
 	};
 
 	jQuery.Event = function( src, props ) {
+		//@ 参数src可以是原生事件类型, 自定义事件类型, 与原生事件对象或jQuery事件对象
+		//@ 参数props是可选的Javascript对象, 其中的属性被设置到新创建的jQuery事件对象上
+
 		// Allow instantiation without the 'new' keyword
 		if ( !(this instanceof jQuery.Event) ) {
-			return new jQuery.Event( src, props );
+			return new jQuery.Event( src, props );//@ 必新构建jQuery事件对象
 		}
 
 		// Event object
@@ -4720,6 +4762,7 @@
 
 			// Events bubbling up the document may have been marked as prevented
 			// by a handler lower down the tree; reflect the correct value.
+			//@ 若当前事件在冒泡过程中已经被另一个更底层的事件监听函数阻止了默认行为, 则修正事件方法idDefaultPrevented为函数returnTrue
 			this.isDefaultPrevented = src.defaultPrevented ||
 			src.defaultPrevented === undefined &&
 				// Support: Android<4.0
@@ -4738,14 +4781,18 @@
 		}
 
 		// Create a timestamp if incoming event doesn't have one
+		//@ 修改时间戳
 		this.timeStamp = src && src.timeStamp || jQuery.now();
 
 		// Mark it as fixed
+		//@ jQuery.expando是每一个jQuery副本的唯一标识, 它的值为"jQuery"+版本好"2.0"+随机数Math.random()
+		//@ 标记的意义在于, 日后通过本属性就可以得知本构造对象是否为jQuery事件对象, 不用通过instanceof方法检测原型链, 高效快捷
 		this[ jQuery.expando ] = true;
 	};
 
 // jQuery.Event is based on DOM3 Events as specified by the ECMAScript Language Binding
 // http://www.w3.org/TR/2003/WD-DOM-Level-3-Events-20030331/ecma-script-binding.html
+	//@ jQuery事件对象的原型
 	jQuery.Event.prototype = {
 		isDefaultPrevented: returnFalse,
 		isPropagationStopped: returnFalse,
@@ -4914,25 +4961,34 @@
 			return this.on( types, selector, data, fn, 1 );
 		},
 		off: function( types, selector, fn ) {
+			//@ off方法用于移除匹配元素集合中每个元素上绑定的一个或多哥类型的监听函数.
+			//@ 移除事件时, 方法调用链为: .unbind/delegate/die() -> .off() -> jQuery.event.remove() -> jQuery._data/removeEventListener/detachEvent()
+
+			//@ types 一个或多个空格分隔的事件类型和可选的命名空间
+			//@ selector 一个选择器表达式字符串
+			//@ fn 待移除的监听函数
 			var handleObj, type;
 			if ( types && types.preventDefault && types.handleObj ) {
+				//@ 若types含有preventDefault属性的话说明types是一个事件对象
+				//@ 若types含有属性handleObj, 说明该参数是一个被方法jQuery.event.dispatch(event)分发的jQuery事件对象
+
 				// ( event )  dispatched jQuery.Event
-				handleObj = types.handleObj;
-				jQuery( types.delegateTarget ).off(
+				handleObj = types.handleObj; //@ 取出jQuery事件对象的监听对象?
+				jQuery( types.delegateTarget ).off(//@ 使用.off()移除事件
 					handleObj.namespace ? handleObj.origType + "." + handleObj.namespace : handleObj.origType,
 					handleObj.selector,
 					handleObj.handler
 				);
 				return this;
 			}
-			if ( typeof types === "object" ) {
+			if ( typeof types === "object" ) {//@ 允许off方法的写法是.off({"click":func1, "press":func2})
 				// ( types-object [, selector] )
 				for ( type in types ) {
 					this.off( type, selector, types[ type ] );
 				}
 				return this;
 			}
-			if ( selector === false || typeof selector === "function" ) {
+			if ( selector === false || typeof selector === "function" ) {//@ 允许off的写法是.off(types, fn)或.off(types, false, fn)
 				// ( types [, fn] )
 				fn = selector;
 				selector = undefined;
@@ -4941,7 +4997,7 @@
 				fn = returnFalse;
 			}
 			return this.each(function() {
-				jQuery.event.remove( this, types, fn, selector );
+				jQuery.event.remove( this, types, fn, selector );//@ 使用remove方法来移除事件
 			});
 		},
 
