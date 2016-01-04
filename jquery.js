@@ -4092,7 +4092,7 @@
 
 			//@ elem 绑定事件的dom元素
 			//@ types 事件类型字符串
-			//@ handler 待绑定的事件监听函数
+			//@ handler 待绑定的事件监听函数, 也可以是一个自定义监听对象
 			//@ data 传入的参数
 			//@ selector 用于绑定代理事件
 
@@ -4107,15 +4107,15 @@
 			//@ eventHandle指向主监听函数
 			//@ handleObj 封装了事件函数的监听对象
 			//@ handleObjIn 传入的监听对象
-			//@ 隐形前提(在缓存数据里有检验): elem不可能是文本节点或注释, 因为不可能用文本节点绑定事件，因为浏览器不会在文本节点上触发事件，也不会在注释节点上绑定事件，因为这样没有意义。
 
 			// Don't attach events to noData or text/comment nodes (but allow plain objects)
 			if ( !elemData ) { //@ jQuery对事件的管理是基于数据缓存模块来实现的, 需要在DOM元素上附加扩展属性以关联数据.
+				//@ 隐形前提(在缓存数据里有检验): elem不可能是文本节点或注释, 因为不可能用文本节点绑定事件，因为浏览器不会在文本节点上触发事件，也不会在注释节点上绑定事件，因为这样没有意义。
 				return;
 			}
 
 			// Caller can pass in an object of custom data in lieu of the handler
-			if ( handler.handler ) {//@ 允许handler的形式是{handler:func, selector:obj}
+			if ( handler.handler ) {//@ 允许handler是一个自定义监听对象, 形式是{handler:func, selector:obj}
 				handleObjIn = handler;
 				handler = handleObjIn.handler;
 				selector = handleObjIn.selector;
