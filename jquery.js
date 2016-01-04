@@ -4570,7 +4570,7 @@
 			//@ keyCode表示一个按键产生的较低层次的"虚拟按键码", 数值型
 			//@ 这四个属性有兼容的问题, 可以查看文件夹
 			filter: function( event, original ) {
-
+				//@ 修正方法
 				// Add which for key events
 				if ( event.which == null ) {
 					//@ 键盘事件被触发, 事件属性which通常具有与keyCode相同的含义和值, 鼠标事件被触发则事件属性which表示那个鼠标按键点击
@@ -4618,7 +4618,10 @@
 			}
 		},
 
-		fix: function( event ) {  //@ 参数event可以是原生事件对象或jQuery事件对象
+		fix: function( event ) {  
+			//@ 本方法用于把原生事件对象封装为jQuery事件对象.
+			//@ 参数event可以是原生事件对象或jQuery事件对象
+			//@ 当浏览器触发事件时, 方法调用链为: 主监听函数 -> jQuery.event.dispatch -> jQuery.event.fix() --> jQuery.Event()
 			if ( event[ jQuery.expando ] ) {//@ 若event含有jQuery.expando属性, 证明是jQuery事件对象, 直接返回本对象, 不执行以下方法, 以下方法是对原生事件对象的封装和修正代码
 				return event;
 			}
@@ -4799,15 +4802,20 @@
 		isImmediatePropagationStopped: returnFalse,
 
 		preventDefault: function() {
+			//@ 本方法用于阻止当前事件可能有的默认行为
+			//@ 方法$.event.trigger()在模拟冒泡过程时, 会检查isDefaultPrevented的状态.
 			var e = this.originalEvent;
-
+			//@ 修正方法isDefaultPrevented为returnTrue
 			this.isDefaultPrevented = returnTrue;
 
 			if ( e && e.preventDefault ) {
+				//@ 若是原生事件对象的话执行其preventDefault方法, 没有的话说明是自定义事件对象, 浏览器不会有默认行为, 可以直接返回
 				e.preventDefault();
 			}
 		},
 		stopPropagation: function() {
+			//@ 本方法用于停止事件传播, 阻止任何祖先元素收到这个事件
+			//@ 方法$.event.dispatch(event)在执行代理事件时, 以及方法$.event.trigger()在模拟冒泡过程时, 会检查isPropagationStopped的状态.
 			var e = this.originalEvent;
 
 			this.isPropagationStopped = returnTrue;
@@ -4817,6 +4825,8 @@
 			}
 		},
 		stopImmediatePropagation: function() {
+			//@ 本方法用于立即停止执行当前元素上的事件和停止事件传播
+			//@ 方法$.event.dispatch(event)在执行事件时会检查isPropagationStopped的状态.
 			var e = this.originalEvent;
 
 			this.isImmediatePropagationStopped = returnTrue;
@@ -4896,12 +4906,14 @@
 	}
 
 	jQuery.fn.extend({
-
-		on: function( types, selector, data, fn, /*INTERNAL*/ one ) {//@ 为匹配元素绑定一个或多个类型的监听函数.
+		//@ 便捷方法如: one / delegate / live / bind
+		on: function( types, selector, data, fn, /*INTERNAL*/ one ) {
+			//@ 为匹配元素绑定一个或多个类型的监听函数. 底层方法是$.event.add()
 			//@ types 示例: "click._button press._input", 这参数可以是浏览器标准事件类型, 也可以是用户自定义事件类型.
 			//@ selector 选择器表达式字符串, 用于绑定代理事件. 有selector时匹配的元素为代理元素, 当事件直接发生在代理元素上, 监听函数就不会执行, 只有在当事件从后代元素冒泡到代理元素上时,才会用参数selector匹配冒泡路径上的后代元素, 然后在匹配成功的后代元素上执行监听函数.
 			//@ data 传给fn的参数
 			//@ fn 带绑定的监听函数，当对应类型的事件被触发时, 该监听函数将被执行.
+			//@ one 若参数one = 1, 需要重新封装监听函数
 			var origFn, type;
 
 			// Types can be a map of types/handlers
@@ -4916,19 +4928,19 @@
 					this.on( type, selector, data, types[ type ], one ); //@ 若参数events是对象, 则遍历该对象, 递归调用方法on来绑定
 				}
 				return this;
-			}// 说明可以接受on({click:fn1, press:fn2},selector, data, one)的模式
+			}// 说明可以接受.on({click:fn1, press:fn2},selector, data, one)的模式
 
 			if ( data == null && fn == null ) {
-				// ( types, fn )
+				//@ 提供模式:.on(types, fn)
 				fn = selector;
 				data = selector = undefined;
 			} else if ( fn == null ) {
 				if ( typeof selector === "string" ) {
-					// ( types, selector, fn )
+					//@ 提供模式:.on(types, selector, fn)
 					fn = data;
 					data = undefined;
 				} else {
-					// ( types, data, fn )
+					//@ 提供模式:.on(types, data, fn)
 					fn = data;
 					data = selector;
 					selector = undefined;
@@ -4945,12 +4957,13 @@
 
 			if ( one === 1 ) {
 				origFn = fn;
-				fn = function( event ) {//@ 重新进行封装, 先保留原函数, 修改为一个先移除事件再触发监听函数的新监听函数.
+				fn = function( event ) {//@ 重新进行封装使其绑定方法只执行一次, 先保留原函数, 修改为一个先移除事件再触发监听函数的新监听函数.
 					// Can use an empty set, since event contains the info
-					jQuery().off( event );// 若one === 1, 触发执行fn之前执行解绑方法.
+					jQuery().off( event );// 执行方法前先移除, 这样就就确保执行一次
 					return origFn.apply( this, arguments );
 				};
 				// Use same guid so caller can remove using origFn
+				//@ 最后把新监听函数fn与传入的监听函数origFn设置相同的唯一标识gui, 在查找和移除监听函数时, 将通过这个唯一标识来匹配监听函数
 				fn.guid = origFn.guid || ( origFn.guid = jQuery.guid++ );
 			}
 			return this.each( function() {
