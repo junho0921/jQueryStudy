@@ -18,8 +18,9 @@ $(function(){
 	for(var prop in jQuery.event.special){
 		var value = jQuery.event.special[prop];
 		console.log(prop, value);
-		console.log(value.setup)
-		console.log(!value.setup)
+		console.log(!value.add);
+//		console.log(!value.setup)
+		console.warn(' ')
 	}
 	console.log('------check jQuery.event.special');
 
