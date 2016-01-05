@@ -4122,28 +4122,30 @@
 			}
 
 			// Make sure that the handler has a unique ID, used to find/remove it later
-			if ( !handler.guid ) {//@ 为每个见ring函数分配一个唯一标识guid
+			if ( !handler.guid ) {//@ 为每个监听函数分配一个唯一标识guid, 用于移除监听函数时, 通过此标识来匹配监听函数
 				handler.guid = jQuery.guid++;
 			}
 
 			// Init the element's event structure and main handler, if this is the first
-			if ( !(events = elemData.events) ) {//@ 读取缓存数据里的绑定事件, 没有就创建一个新对象. 事件缓存对象events用于存放当前元素关联的所有监听函数.
-				events = elemData.events = {};
+			if ( !(events = elemData.events) ) {//@ 读取缓存数据里的事件缓存对象events, 没有就创建一个新对象. 事件缓存对象events用于存放当前元素关联的所有监听函数.
+				events = elemData.events = {};//@ 事件缓存对象events作为存放当前元素关联的所有监听函数.
 			}
-			if ( !(eventHandle = elemData.handle) ) {//@ 读取缓存数据里的主监听函数
-				//@ 缓存数据没有主监听函数, 表示从未在当前元素上使用jQuery绑定过事件
+			if ( !(eventHandle = elemData.handle) ) {
+				//@ 取出缓存数据里的主监听函数
+				//@ 判断是否存在主监听函数
+				//@ 若缓存数据没有主监听函数, 表示从未在当前元素上使用jQuery绑定过事件
 				eventHandle = elemData.handle = function( e ) {
 					//@ 初始化一个主监听函数, 主监听函数会被当前元素的所有类型的事件所公用.
 					//@ 每个DOM元素, jQuery事件系统只会为之分配一个主监听函数,并且所有类型的事件在被绑定时, 真正会绑定到元素上的只有这个主监听函数.
 					// Discard the second event of a jQuery.event.trigger() and
 					// when an event is called after a page has unloaded
 					return typeof jQuery !== strundefined && jQuery.event.triggered !== e.type ?
-						jQuery.event.dispatch.apply( elem, arguments ) : undefined;//@ 实际的方法是使用jQuery.event.dispatch
+						jQuery.event.dispatch.apply( elem, arguments ) : undefined;//@ 主监听函数的底层方法是$.event.dispatch
 				};
 			}
 
 			// Handle multiple events separated by a space
-			types = ( types || "" ).match( rnotwhite ) || [ "" ];
+			types = ( types || "" ).match( rnotwhite ) || [ "" ];//@ 提供可以使用空格来隔开事件, 传入多个事件
 			t = types.length;
 			while ( t-- ) {//@ 简洁的倒序遍历
 				tmp = rtypenamespace.exec( types[t] ) || [];
@@ -4159,11 +4161,13 @@
 				}
 
 				// If event changes its type, use the special event handlers for the changed type
-				special = jQuery.event.special[ type ] || {};// 看本事件类型是否jQuery.event.special修正对象属性里的类型, 否则是{}
-
+				special = jQuery.event.special[ type ] || {};// 看本事件类型是否jQuery.event.special修正对象属性里的类型, 否则返回{}
+																//@ 修正对象$.event.special用于修正事件的绑定,代理,触发,和移除行为
 				// If selector defined, determine special event api type, otherwise given type
-				type = ( selector ? special.delegateType : special.bindType ) || type;//@ 在有selector的情况, 绑定的是代理事件,可能把当前事件类型修正为可冒泡的事件类型(spacial.delegateType)
-				//@ 没有selector就是普通的事件绑定, 也有可能需要修正为支持度更好的事件类型(special.bindType)
+				type = ( selector ? special.delegateType : special.bindType ) || type;
+				//@ selector是判断代理绑定事件与普通绑定事件
+				//@ 代理绑定事件: 可能把当前事件类型修正为可冒泡的事件类型(spacial.delegateType)
+				//@ 普通绑定事件: 也有可能需要修正为支持度更好的事件类型(special.bindType)
 				// Update special based on newly reset type
 				special = jQuery.event.special[ type ] || {};
 
@@ -4181,7 +4185,10 @@
 				}, handleObjIn );
 
 				// Init the event handler queue if we're the first
-				if ( !(handlers = events[ type ]) ) {//@ 初始化监听对象数组, 并绑定主监听函数.
+				if ( !(handlers = events[ type ]) ) {
+					//@ 取出本DOM对象里的绑定事件的数据缓存对象events里该事件type的内容
+					//@ 若该事件type内容为defined, 执行以下初始化
+					//@ 初始化监听对象数组, 并绑定主监听函数.
 					handlers = events[ type ] = [];
 					handlers.delegateCount = 0;//@ 新数组赋值属性delegateCount, 用于只是下一个代理监听对象的插入位置,位置为"位置计数器", 往后累加
 

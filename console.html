@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<script src="jquery.js"></script>
+<body>
+<button>按钮</button>
+<script>
+$(function(){
+	$('button').on('click.tst.h.2 ', function(){
+		console.log('click func')
+	});
+
+
+	console.log('------check jQuery.event.special');
+	for(var prop in jQuery.event.special){
+		var value = jQuery.event.special[prop];
+		console.log(prop, value);
+		console.log(value.setup)
+		console.log(!value.setup)
+	}
+	console.log('------check jQuery.event.special');
+
+});
+</script>
+</body>
+</html>
