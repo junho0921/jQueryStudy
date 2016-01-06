@@ -4187,7 +4187,7 @@
 				// Init the event handler queue if we're the first
 				if ( !(handlers = events[ type ]) ) {
 					//@ 取出本DOM对象里的绑定事件的数据缓存对象events里该事件type的内容
-					//@ 若该事件type内容为defined, 执行以下初始化
+					//@ 若该事件type内容为undefined, 执行以下初始化
 					//@ 初始化监听对象数组, 并绑定主监听函数.
 					handlers = events[ type ] = [];
 					handlers.delegateCount = 0;//@ 新数组赋值属性delegateCount, 用于只是下一个代理监听对象的插入位置,位置为"位置计数器", 往后累加
