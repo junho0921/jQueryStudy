@@ -4246,7 +4246,8 @@
 			//@ handleObj 指向封装了监听函数的监听对象
 
 			if ( !elemData || !(events = elemData.events) ) {
-				return;// @ 当前元素没有关联的缓存数据或事件缓存对象, 则忽略本次调用
+				//@ 执行remove方法的必要条件:1, 对象elem必须已在jQuery缓存数据里有内容; 2, 对象elem的缓存数据里有事件缓存对象内容
+				return;
 			}//@ 变量events现在已经更新了!   (因有elemDate, 所以!elemData == false, 所以执行events = elemData.events后检测判断)
 
 			// Once for each type.namespace in types; type may be omitted
@@ -4268,7 +4269,7 @@
 
 				special = jQuery.event.special[ type ] || {};//@ 尝试获取修正对象集special里对应的修正对象
 				type = ( selector ? special.delegateType : special.bindType ) || type;
-				handlers = events[ type ] || [];
+				handlers = events[ type ] || [];//@ 取出elem的事件缓存对象
 				tmp = tmp[2] && new RegExp( "(^|\\.)" + namespaces.join("\\.(?:.*\\.|)") + "(\\.|$)" );
 				//@ tmp = 以命名空间namespaces转换为一个正则, 用于检测已绑定事件的命名空间是否与参数types中的命名空间匹配
 				//@ demo : namespace = "ns2.ns1", 被转换为/(^|\.)ns1\.(?:.*\.|)ns2(\.|$)/ 被填充的(?:.*\.)表示"ns1"和"ns2"之间可以包含其他的命名空间
@@ -4984,18 +4985,19 @@
 			//@ off方法用于移除匹配元素集合中每个元素上绑定的一个或多哥类型的监听函数.
 			//@ 移除事件时, 方法调用链为: .unbind/delegate/die() -> .off() -> jQuery.event.remove() -> jQuery._data/removeEventListener/detachEvent()
 
-			//@ types 一个或多个空格分隔的事件类型和可选的命名空间
+			//@ types 一个或多个空格分隔的事件类型和可选的命名空间, 另外该参数可以是一个已分发的jQuery事件对象, 用于移除当前正在执行的事件.
 			//@ selector 一个选择器表达式字符串
 			//@ fn 待移除的监听函数
 			var handleObj, type;
 			if ( types && types.preventDefault && types.handleObj ) {
+				//@ 本方法提供了off方法可以接收jQuery事件对象作为第一参数来移除绑定事件!
 				//@ 若types含有preventDefault属性的话说明types是一个事件对象
-				//@ 若types含有属性handleObj, 说明该参数是一个被方法jQuery.event.dispatch(event)分发的jQuery事件对象
+				//@ 若types含有属性handleObj, 说明该参数是一个被方法jQuery.event.dispatch(event)分发的jQuery事件对象, 也就是经过jQuery修正的事件对象event
 
 				// ( event )  dispatched jQuery.Event
-				handleObj = types.handleObj; //@ 取出jQuery事件对象的监听对象?
-				jQuery( types.delegateTarget ).off(//@ 使用.off()移除事件
-					handleObj.namespace ? handleObj.origType + "." + handleObj.namespace : handleObj.origType,
+				handleObj = types.handleObj; //@ 取出jQuery事件对象的监听事件对象
+				jQuery( types.delegateTarget ).off(//@ 使用.off()移除事件 //@ 需要知道$.event.dispatch如何产生types.handleObj
+					handleObj.namespace ? handleObj.origType + "." + handleObj.namespace : handleObj.origType,//@ 若有命名空间的话, 需作为移除的事件匹配条件
 					handleObj.selector,
 					handleObj.handler
 				);
