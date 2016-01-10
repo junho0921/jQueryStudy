@@ -4231,7 +4231,7 @@
 			//@ elem 待移除事件的DOM元素
 			//@ types 事件类型字符串
 			//@ handler 待移除的事件监听函数
-			//@ selector 一个选择器表达式字符串
+			//@ selector 一个选择器表达式字符串, 用于移除代理事件
 			//@ mappedTypes 布尔值, 只是移除事件时是否严格检测事件的类型, 默认为false需要检测已绑定的事件的原始类型(handleObj.origType)与传入事件类型types是否匹配,若为true则执行检测
 
 			var j, origCount, tmp,
@@ -4259,17 +4259,17 @@
 				namespaces = ( tmp[2] || "" ).split( "." ).sort();//@ 这些调整近似于add方法里对应的
 
 				// Unbind all events (on this namespace, if provided) for the element
-				if ( !type ) {//@ 若type是空的, 可以说是types没有传值, 或是undefined
-					for ( type in events ) { //@ for循环里, 变量type更新指向
+				if ( !type ) {//@ 若type是undefined, 那么执行清空对象在事件缓存对象里的所有事件:
+					for ( type in events ) { //@ for循环里, 变量type是事件缓存对象里的各事件
 						//@ 遍历当前元素关联的事件缓存对象, 为其中的每个事件类型递归调用方法jQuery.event.remove
-						jQuery.event.remove( elem, type + types[ t ], handler, selector, true );//@ 个人理解: 使用remove方法来清空 监听对象集events 里的所有监听方法
+						jQuery.event.remove( elem, type + types[ t ], handler, selector, true );
 					}
 					continue;
 				}
 
 				special = jQuery.event.special[ type ] || {};//@ 尝试获取修正对象集special里对应的修正对象
 				type = ( selector ? special.delegateType : special.bindType ) || type;
-				handlers = events[ type ] || [];//@ 取出elem的事件缓存对象
+				handlers = events[ type ] || [];//@ 取出elem的事件缓存对象里type事件对应的监听函数对象数组
 				tmp = tmp[2] && new RegExp( "(^|\\.)" + namespaces.join("\\.(?:.*\\.|)") + "(\\.|$)" );
 				//@ tmp = 以命名空间namespaces转换为一个正则, 用于检测已绑定事件的命名空间是否与参数types中的命名空间匹配
 				//@ demo : namespace = "ns2.ns1", 被转换为/(^|\.)ns1\.(?:.*\.|)ns2(\.|$)/ 被填充的(?:.*\.)表示"ns1"和"ns2"之间可以包含其他的命名空间
@@ -4279,13 +4279,17 @@
 				origCount = j = handlers.length;//@ 遍历本DOM缓存数据里监听对象数组elemData.events[type]本事件类型, 里的每个监听对象
 				while ( j-- ) {
 					handleObj = handlers[ j ];
-
-					if ( ( mappedTypes || origType === handleObj.origType ) && //@ mappedTypes==true的话就不需要检测原始事件类型, 否则匹配type事件类型
-						( !handler || handler.guid === handleObj.guid ) && //@ 匹配绑定事件handler, 允许没有handler
-						( !tmp || tmp.test( handleObj.namespace ) ) &&//@ 正则匹配命名空间, 允许没有命名空间
+					//@ 匹配的过程是重要性强弱进行, 重要性强的靠前判断, 前面的没有return true的话直接跳出方法不执行: 重要性强弱排行: 1,原型事件;2,监听函数guid;3,命名空间;4,代理元素
+					if ( ( mappedTypes || origType === handleObj.origType ) && //@ mappedTypes==true的话就不需要检测原始事件类型, 或者监听对象的原始事件类型与传入的相等
+						( !handler || handler.guid === handleObj.guid ) && //@ 匹配绑定事件handler, 允许没有handler, 有的话必须要等同于缓存数据里监听方法的guid标识
+						( !tmp || tmp.test( handleObj.namespace ) ) &&//@ 正则匹配命名空间, 允许没有命名空间, 有的话必须匹配缓存数据里的命名空间
 						( !selector || selector === handleObj.selector || selector === "**" && handleObj.selector ) //@ 匹配selector , 允许selector是"**"的写法或没有
-					) { // 匹配成功后
+					) { //@ 匹配成功后
+						//@ 对数组(事件缓存对象里type事件里监听函数对象数组)里的对应的监听函数进行删除,  删除后, dispatch执行的时候就不会找到这个监听函数方法
 						handlers.splice( j, 1 );
+						//@ 以上的条件筛选是提供了多种情况来匹配, 多种情况移除事件:
+						//@ 若没有传入监听函数, 认为是不指定监听函数的遍历删除监听对象
+						//@ 若没有传入命名空间, 认为是不指定命名空间的遍历删除监听对象
 
 						if ( handleObj.selector ) {
 							handlers.delegateCount--;
@@ -4298,47 +4302,60 @@
 
 				// Remove generic event handler if we removed something and no more handlers exist
 				// (avoids potential for endless recursion during removal of special event handlers)
-				if ( origCount && !handlers.length ) {
+				if ( origCount && !handlers.length ) { //@ 若原本此type的监听对象数组有内容而现在已经被清空, 表示该事件已经没有任何监听方法
 					if ( !special.teardown || special.teardown.call( elem, namespaces, elemData.handle ) === false ) {
-						jQuery.removeEvent( elem, type, elemData.handle );
+						jQuery.removeEvent( elem, type, elemData.handle );//@ 注意: 移除的事件是主监听函数, 不是具体的监听对象或监听函数
 					}
 
-					delete events[ type ];
+					delete events[ type ];//@ 删除事件缓存对象里该type事件类型的监听对象数组(现在已是空数组)
 				}
 			}
 
 			// Remove the expando if it's no longer used
-			if ( jQuery.isEmptyObject( events ) ) {
+			if ( jQuery.isEmptyObject( events ) ) { //@ 若事件缓存对象里没有内容, 表示当前元素上绑定的事件都已经被清除, 清空该DOM元素的主监听函数
 				delete elemData.handle;
 				data_priv.remove( elem, "events" );
 			}
 		},
 
 		trigger: function( event, data, elem, onlyHandlers ) {
+			//@ trigger是手动触发事件的底层方法
+			//@ 用于执行每个匹配元素上绑定的监听函数和默认行为, 并模拟冒泡行为, 参数onlyHandlers用于选择模式: 执行第一个匹配元素上绑定的监听函数, 并模拟冒泡过程, 但不触发默认行为
+			//@ 手动触发事件流程: 事件便捷方法() --> .trigger/triggerHandler() --> jQuery.event.trigger() --> 主监听函数 --> jQuery.event.dispatch --> 事件监听函数
+			//@ 因为手动触发是直接执行监听函数, 没有浏览器的原生事件, 不会有冒泡阶段, 需要手动模拟
+
+			//@ 参数event待触发的事件, 可以是事件类型,自定义事件或jQuery事件对象
+			//@ 参数data将被传给主监听函数的数据
+			//@ 参数elem: DOM元素, 将在该元素上手动触发事件和默认行为
+			//@ 参数onlyHandlers: 布尔值, 只是是否执行监听函数而不触发默认行为
 
 			var i, cur, tmp, bubbleType, ontype, handle, special,
-				eventPath = [ elem || document ],
-				type = hasOwn.call( event, "type" ) ? event.type : event,
-				namespaces = hasOwn.call( event, "namespace" ) ? event.namespace.split(".") : [];
-
+				eventPath = [ elem || document ],//@ 变量eventPath称为"冒泡路径数组", 存放冒泡路径上的元素和事件类型
+				type = hasOwn.call( event, "type" ) ? event.type : event,//@ 若event对象有type属性的话, 表示event是一个原生事件对象或jQuery事件对象, 若event没有type属性, 那么表示event是事件类型字符串
+				namespaces = hasOwn.call( event, "namespace" ) ? event.namespace.split(".") : [];//@ 若event有namespace属性的话, 表示??
+				//@ 变量bubbleType表示当前事件类型对应的冒泡事件类型
+				//@ 变量ontype: 含有前缀"on"的事件类型, 用于调用对应的行内监听函数
 			cur = tmp = elem = elem || document;
 
-			// Don't do events on text and comment nodes
+			// Don't do events on text and comment nodes //@ 过滤文本节点和注释节点
 			if ( elem.nodeType === 3 || elem.nodeType === 8 ) {
 				return;
 			}
 
 			// focus/blur morphs to focusin/out; ensure we're not firing them right now
 			if ( rfocusMorph.test( type + jQuery.event.triggered ) ) {
+				//@ 属性jQuery.event.triggered指示了正在触发的默认行为的事件类型, 该属性在触发行为前被设为事件类型, 在触发之后会被设为undefined, 请关注! 应该很有用!
+				//@ 若正在触发focusin/focusout事件的默认行为, 浏览器该自定触发focusin/focusout事件
 				return;
 			}
 
-			if ( type.indexOf(".") >= 0 ) {
+			if ( type.indexOf(".") >= 0 ) {//@ 处理事件类型的命名空间, 若有"."字符, 表示第一参数是event, 那么namespaces还没有, 所以需要取出并排序
 				// Namespaced trigger; create a regexp to match event type in handle()
 				namespaces = type.split(".");
 				type = namespaces.shift();
 				namespaces.sort();
 			}
+			//@ 若事件类型里含有字符":", 那么变量ontype = "on" + type
 			ontype = type.indexOf(":") < 0 && "on" + type;
 
 			// Caller can pass in a jQuery.Event object, Object, or just an event type string
@@ -4447,16 +4464,23 @@
 		},
 
 		dispatch: function( event ) {
+			//@ 事件响应
+			//@ 浏览器触发事件: 任何绑定的方法都会被触发
+			//@ 手动触发事件: 
+
 			//@ dispatch负责分发事件和执行监听函数, 为执行主监听函数的底层实现
 
 			//@ 当浏览器触发事件时, 方法调用链为: 主监听函数 -> jQuery.event.dispatch -> 监听函数
 			//@ 手动触发事件时, 方法调用链为: 事件便捷方法() -> .trigger/triggerHandler() -> jQuery.event.tiggger() -> 主监听函数 -> jQuery.event.dispatch() -> 监听函数
-			//@ 特点: 1, jQuery分配给DOM元素各自唯一的主监听函数
-			//2, 绑定事件时,只有主监听函数会被真正绑定到元素上, 而传入的监听函数则被封装为监听对象, 存储在事件类型对应的监听对象数组events[type]中.
+			//@ 特点: 
+					//1, jQuery分配给DOM元素各自唯一的主监听函数, 该元素所有类型的事件将共用这个主监听函数
+					//2, 绑定事件时,只有主监听函数会被真正绑定到元素上, 而传入的监听函数则被封装为监听对象, 存储在事件类型对应的监听对象数组events[type]中.
 
 			//@ 参数event若是浏览器触发的则在以下代码会被封装为jQuery事件对象, 若是手动触发的则是jQuery事件对象, 注意, IE9以下的浏览器在触发事件时不会吧原生事件对象传给监听函数, 而是需要通过window.event来获取
 			// Make a writable jQuery.Event from the native event object
 			event = jQuery.event.fix( event );//@ 封装event为jQuery对象, 修正原生事件对象的不兼容属性
+
+			//@ 关注点:1,命名空间在本方法里有没有作用??;2,代理事件如何放生;3,在4499执行方法时的第一个限制是propagationStopped, 若何理解? 是不是其他元素执行方法可以应该本元素的冒泡属性?!
 
 			var i, j, ret, matched, handleObj,
 				handlerQueue = [],
@@ -4465,15 +4489,16 @@
 				special = jQuery.event.special[ event.type ] || {};
 			//@ handlers 指向当前事件类型对应的监听对象数组
 			//@ args 把参数对象转为真正的数组
-			//@ retb 监听函数的返回值
+			//@ ret 事件监听函数的返回值
 			//@ matched 是待执行队列handlerQueue中的一个元素
 			//@ handleObj 监听对象
 			//@ special是??
+			//@ handlerQueue被称为"待执行队列", 其中包含了后代元素匹配的代理监听对象数组, 以及当前元素上绑定的普通监听对象数组
 
 			// Use the fix-ed jQuery.Event rather than the (read-only) native event
 			//@ 修正参数args[0]与事件对象event
 			args[0] = event;
-			event.delegateTarget = this;
+			event.delegateTarget = this;//@ 事件的目标元素相关的元素, 先设为this
 
 			// Call the preDispatch hook for the mapped type, and let it bail if desired
 			if ( special.preDispatch && special.preDispatch.call( this, event ) === false ) {
@@ -4481,28 +4506,39 @@
 			}
 
 			// Determine handlers
-			handlerQueue = jQuery.event.handlers.call( this, event, handlers );
+			//@ 使用jQuery.event.handlers方法来计算获得: 执行排队数组handlerQueue
+			handlerQueue = jQuery.event.handlers.call( this, event, handlers );//@ 传参两个变量: 1,jQuery事件对象2,该事件对象对应的缓存事件对象数组
 
+			//@ 两层遍历来执行handlerQueue里的所有监听方法:
 			// Run delegates first; they may want to stop propagation beneath us
 			i = 0;
-			while ( (matched = handlerQueue[ i++ ]) && !event.isPropagationStopped() ) {
-				event.currentTarget = matched.elem;
+			while ( (matched = handlerQueue[ i++ ]) && !event.isPropagationStopped() ) {//@ 执行event.isPropagationStopped()方法, 若返回true就停止
+				//@ 当某个元素的监听函数调用了方法event.stopPropagation(), 那么event的属性isPropagationStopped就会是返回true的函数, 这是jQuery模拟了"停止事件传播"
+				//@ 这是很重要的部分, 暂时理解是过程中首先执行后代元素的监听方法, 若其中方法有执行event.stopPropagation(), 那么handlerQueue后面的对象与方法都不会执行! 更不用说本元素的普通绑定方法, 都不执行! 这是事件缓存对象里的停止事件传播
+				//@ 第一层遍历执行排队的各个对象{elem, handlers}, 可以理解为遍历有监听对象的元素
+				event.currentTarget = matched.elem;//@ 思考event.currentTarget也是jQuery封装好的属性? 那么其实代理绑定是怎么回事? 应该是在监听对象里已经包含的属性, 所以应该在add方法里已经有处理的event.currentTarget
 
 				j = 0;
-				while ( (handleObj = matched.handlers[ j++ ]) && !event.isImmediatePropagationStopped() ) {
-
+				while ( (handleObj = matched.handlers[ j++ ]) && !event.isImmediatePropagationStopped() ) {//@ 执行event.isImmediatePropagationStopped()方法, 若返回true就停止
+					//@ 当遍历的这元素的监听函数调用了方法event.stopImmediatePropagation(), 那么event的属性isImmediatePropagationStopped与属性isPropagationStopped就会是返回true的函数, 那么这两次循环都会停止下来, 这是jQuery模拟了"立即停止事件传播"
+					//@ 第二层遍历该元素对应的监听对象数组, 并执行其中的监听函数
 					// Triggered event must either 1) have no namespace, or 2) have namespace(s)
 					// a subset or equal to those in the bound event (both can have no namespace).
 					if ( !event.namespace_re || event.namespace_re.test( handleObj.namespace ) ) {
+						//@ 必须思考: 什么情况event才有namespace_re?? 是不是手动触发事件才有? 是不是原生的就必然没有的?
 
+						//@ 把监听对象赋值到jQuery事件对象里面, 用户使用监听函数的时候可以通过event对象来获取很多属性
 						event.handleObj = handleObj;
 						event.data = handleObj.data;
 
+						//@ 执行监听函数并传参执行的对象元素与arguments参数
 						ret = ( (jQuery.event.special[ handleObj.origType ] || {}).handle || handleObj.handler )
-							.apply( matched.elem, args );
+							.apply( matched.elem, args );//@ 这里保证监听对象指定的对象作为this上下文!
 
 						if ( ret !== undefined ) {
-							if ( (event.result = ret) === false ) {
+							//@ 若监听函数有返回值, 那么先把返回值赋值给event.result
+							if ( (event.result = ret) === false ) {// 若监听函数有返回值且值为false, 就会调用方法停止事件传播与阻止默认行为!
+								//@ 所以用户可以在监听函数最后添加return false来调用这些方法!
 								event.preventDefault();
 								event.stopPropagation();
 							}
@@ -4520,6 +4556,7 @@
 		},
 
 		handlers: function( event, handlers ) {
+			//@ 提取后代元素匹配的代理监听对象数组: 如果为当前元素绑定了代理事件, 则提取后代元素匹配的代理监听对象数组
 			var i, matches, sel, handleObj,
 				handlerQueue = [],
 				delegateCount = handlers.delegateCount,
@@ -4529,27 +4566,33 @@
 			// Black-hole SVG <use> instance trees (#13180)
 			// Avoid non-left-click bubbling in Firefox (#3861)
 			if ( delegateCount && cur.nodeType && (!event.button || event.type !== "click") ) {
+				//@ 先从delegateCount检测当前元素有无绑定代理事件, 后检测当前元素的DOM标签??(书上说: 检查后代元素与监听对象的选择器表达式是否匹配), 后检测事件属性是否有button或事件类型非"click"
 
+				//@ 使用两层for循环提取后代元素匹配的代理监听函数对象数组:
 				for ( ; cur !== this; cur = cur.parentNode || this ) {
-
+					//@ 第一层for循环遍历从触发事件的元素到代理元素这条路径上的所有后代元素, cur指向代理元素的某个后代元素
 					// Don't process clicks on disabled elements (#6911, #8165, #11382, #11764)
 					if ( cur.disabled !== true || event.type !== "click" ) {
-						matches = [];
+						matches = [];// 称matches为匹配结果数组, 先清空
+						//@ matches是用于存储后代元素与代理监听对象的选择器表达式的所有匹配结果
 						for ( i = 0; i < delegateCount; i++ ) {
+							//@ 第二层for循环为每个后代元素遍历代理元素的代理监听对象素组, 把后代元素匹配的代理监听对象存储到数组matched中
 							handleObj = handlers[ i ];
 
 							// Don't conflict with Object.prototype properties (#13203)
-							sel = handleObj.selector + " ";
+							sel = handleObj.selector + " ";//@ 取出代理监听对象的后代选择器
 
-							if ( matches[ sel ] === undefined ) {
-								matches[ sel ] = handleObj.needsContext ?
+							// 以下两个判断很好的结合, 使得各后代选择器的匹配只需执行一次, 提高的性能!
+							if ( matches[ sel ] === undefined ) { //@ 配对结果数组里没有此选择器的内容, 表示需要执行方法来检测配对, 否则表示之前已经匹配成功了
+								matches[ sel ] = handleObj.needsContext ? //@ 如何加快匹配, 提高效率? 请继续留意! 现在暂时不管
 								jQuery( sel, this ).index( cur ) >= 0 :
-									jQuery.find( sel, this, null, [ cur ] ).length;
+									jQuery.find( sel, this, null, [ cur ] ).length;//@ 使用jQuery方法find来配对cur元素与sel选择器, 返回配对成功布尔值
 							}
-							if ( matches[ sel ] ) {
+							if ( matches[ sel ] ) { //@ 配对结果数组里没有此选择器的内容或值为true, 表示本选择器已匹配成功, 可以把监听对象存储到匹配结果数组
 								matches.push( handleObj );
 							}
 						}
+						// 在一个DOM元素遍历完代理监听对象后, 若该DOM的匹配监听对象数组有内容就存储{元素与监听对象数组}到执行排队handlerQueue里
 						if ( matches.length ) {
 							handlerQueue.push({ elem: cur, handlers: matches });
 						}
@@ -4558,7 +4601,7 @@
 			}
 
 			// Add the remaining (directly-bound) handlers
-			if ( delegateCount < handlers.length ) {
+			if ( delegateCount < handlers.length ) { //@ 这表示当前元素还绑定了普通事件, handlerQueue也需要把普通事件包含, 在后面插入
 				handlerQueue.push({ elem: this, handlers: handlers.slice( delegateCount ) });
 			}
 

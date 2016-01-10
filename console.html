@@ -24,6 +24,12 @@ $(function(){
 	}
 	console.log('------check jQuery.event.special');
 
+	var rnotwhite = (/\S+/g);
+
+	var types = 'click  tap';
+	types = ( types || "" ).match( rnotwhite ) || [ "" ];//@ 若types是undefined, 没有传值, 那么types会重新赋值为[""]新数值,长度是1
+	t = types.length;
+	console.log('types', types, t)
 });
 </script>
 </body>
