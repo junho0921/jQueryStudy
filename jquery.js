@@ -4324,18 +4324,20 @@
 			//@ 手动触发事件流程: 事件便捷方法() --> .trigger/triggerHandler() --> jQuery.event.trigger() --> 主监听函数 --> jQuery.event.dispatch --> 事件监听函数
 			//@ 因为手动触发是直接执行监听函数, 没有浏览器的原生事件, 不会有冒泡阶段, 需要手动模拟
 
+			//@ 问题: 1, 我在DrM开发的时候遇到的问题如原生事件里: 父子级各自绑定普通事件, 但可以有event.target指示对象, 是不是jQuery封装修正好event.target??
+
 			//@ 参数event待触发的事件, 可以是事件类型,自定义事件或jQuery事件对象
 			//@ 参数data将被传给主监听函数的数据
 			//@ 参数elem: DOM元素, 将在该元素上手动触发事件和默认行为
-			//@ 参数onlyHandlers: 布尔值, 只是是否执行监听函数而不触发默认行为
+			//@ 参数onlyHandlers: 布尔值, 只是是否执行监听函数而不触发默认行为, true的话只触发当前元素上的事件监听函数, 不会触发默认行为, 不会模拟冒泡行为
 
 			var i, cur, tmp, bubbleType, ontype, handle, special,
-				eventPath = [ elem || document ],//@ 变量eventPath称为"冒泡路径数组", 存放冒泡路径上的元素和事件类型
+				eventPath = [ elem || document ],//@ 变量eventPath称为"冒泡路径数组", 存放冒泡路径上的元素和事件类型, 先从本元素出发, 但没有的话就以document作为出发点
 				type = hasOwn.call( event, "type" ) ? event.type : event,//@ 若event对象有type属性的话, 表示event是一个原生事件对象或jQuery事件对象, 若event没有type属性, 那么表示event是事件类型字符串
 				namespaces = hasOwn.call( event, "namespace" ) ? event.namespace.split(".") : [];//@ 若event有namespace属性的话, 表示??
 				//@ 变量bubbleType表示当前事件类型对应的冒泡事件类型
 				//@ 变量ontype: 含有前缀"on"的事件类型, 用于调用对应的行内监听函数
-			cur = tmp = elem = elem || document;
+			cur = tmp = elem = elem || document;//@ 若没有传入参数elem对象, 那么elem就指向document
 
 			// Don't do events on text and comment nodes //@ 过滤文本节点和注释节点
 			if ( elem.nodeType === 3 || elem.nodeType === 8 ) {
@@ -4355,81 +4357,98 @@
 				type = namespaces.shift();
 				namespaces.sort();
 			}
-			//@ 若事件类型里含有字符":", 那么变量ontype = "on" + type
+			//@ 若事件类型里含有字符":", 那么变量ontype = "on" + type, 用于调用对应的行内监听函数.
 			ontype = type.indexOf(":") < 0 && "on" + type;
 
 			// Caller can pass in a jQuery.Event object, Object, or just an event type string
+			//@ 创建jQuery事件对象: 若event本来就是jQuery事件对象就不用新创建, 否则新创建并以事件类型type为第一参数, 若event是对象表示event可能是原生事件对象, 那么以第二参数来构造事件对象
 			event = event[ jQuery.expando ] ?
 				event :
 				new jQuery.Event( type, typeof event === "object" && event );
 
 			// Trigger bitmask: & 1 for native handlers; & 2 for jQuery (always true)
+			//@ 修正事件对象event的属性
 			event.isTrigger = onlyHandlers ? 2 : 3;
-			event.namespace = namespaces.join(".");
+			event.namespace = namespaces.join(".");//@ 添加事件对象命名空间, 区别于原生事件, 是jQuery的添加的event属性
 			event.namespace_re = event.namespace ?
 				new RegExp( "(^|\\.)" + namespaces.join("\\.(?:.*\\.|)") + "(\\.|$)" ) :
-				null;
+				null;//@ 在$.event.dispatch方法里执行handlerQueue里的监听方法时就有使用命名空间选择性执行, 是因为这里添加了! 
 
 			// Clean up the event in case it is being reused
-			event.result = undefined;
+			event.result = undefined; //@ 重置事件对象属性result
 			if ( !event.target ) {
 				event.target = elem;
-			}
+			}//@ 什么情况会没有事件对象的target? 应该是在手动触发时新创建的事件对象
 
 			// Clone any incoming data and prepend the event, creating the handler arg list
 			data = data == null ?
 				[ event ] :
-				jQuery.makeArray( data, [ event ] );
+				jQuery.makeArray( data, [ event ] );//@ 把event事件对象与data数组整合, 用于执行监听函数时候的参数
 
 			// Allow special events to draw outside the lines
 			special = jQuery.event.special[ type ] || {};
 			if ( !onlyHandlers && special.trigger && special.trigger.apply( elem, data ) === false ) {
 				return;
-			}
+			}//@ 非onlyHandlers, 优先执行修正事件对象的trigger方法, special.trigger是一个预留方法
 
 			// Determine event propagation path in advance, per W3C events spec (#9951)
 			// Bubble up to document, then to window; watch for a global ownerDocument var (#9724)
+			//@ 构造冒泡路径: 从当前元素出发, 沿着DOM树向上遍历, 构造出一条冒泡路径
 			if ( !onlyHandlers && !special.noBubble && !jQuery.isWindow( elem ) ) {
+				//@ 构造冒泡路径的前提条件: 非onlyHandlers, 修正对象属性noBubble非true(true表示不允许当前事件冒泡), 还有若当前元素是window的话就是最顶部,这就不需要冒泡
 
-				bubbleType = special.delegateType || type;
+				bubbleType = special.delegateType || type;//@ 优先选择修正对象的属性冒泡事件类型, 例如不冒泡的focus对应冒泡的focusin
 				if ( !rfocusMorph.test( bubbleType + type ) ) {
-					cur = cur.parentNode;
+					cur = cur.parentNode;//@ 一般情况: 初始化变量cur的值为当前元素的父元素, 若test方法检测出事件类型是focus/blur事件,若是手动触发的,浏览器应该自动触发focusin/focusout事件,保持cur=elem
 				}
 				for ( ; cur; cur = cur.parentNode ) {
+					//@ 沿着DOM树向上遍历所有cur的父元素, 把遇到的元素都放入路径数组eventPath: 遍历变量cur, 条件是cur的父元素, 遍历前执行:cur = cur.parentNode
 					eventPath.push( cur );
-					tmp = cur;
+					tmp = cur;// 取到路径中的最顶层元素
 				}
 
 				// Only add window if we got to document (e.g., not plain obj or detached DOM)
+				//@ 若tmp变量是document对象的话, 则按照标准事件规范, 向路径数组eventPath中添加window对象
 				if ( tmp === (elem.ownerDocument || document) ) {
 					eventPath.push( tmp.defaultView || tmp.parentWindow || window );
 				}
+				//@ 至此, 冒泡路径构造完毕
 			}
 
 			// Fire handlers on the event path
 			i = 0;
+			// 遍历
 			while ( (cur = eventPath[i++]) && !event.isPropagationStopped() ) {
+				//@ 1, 变量cur指向遍历中的冒泡路径数组eventPath中的一个(从底层向高层方向遍历), 执行变量cur后i变量累加
+				//@ 2, 判断cur是否存在, 而且执行事件对象event的方法isPropagationStopped, 判断是否阻止冒泡(可能在遍历的过程中有某个元素使用了方法event.stopPropogation(),就会使得本event对象的isPropagationStopped返回true)
+				//@ 遍历冒泡路径数组eventPath, 触发每个元素上的主监听函数和行内监听函数
 
-				event.type = i > 1 ?
+				//@ 给事件对象添加type属性 = 冒泡事件类型/绑定事件类型/参数提供的事件类型
+				event.type = i > 1 ?//@ 最底层的DOM元素是自身? 所以使用bindType或type事件类型? 其他都使用冒泡事件类型?
 					bubbleType :
 				special.bindType || type;
 
 				// jQuery handler
 				handle = ( data_priv.get( cur, "events" ) || {} )[ event.type ] && data_priv.get( cur, "handle" );
+				//@ 先执行方法data_priv.get()来获取DOM元素的缓存数据, 再取得这元素所对应事件类型的缓存数据, 若有(表示该元素已绑定了该指定事件类型的事件), 那么取得其缓存数据的主监听函数
 				if ( handle ) {
-					handle.apply( cur, data );
+					//@ 执行有绑定本事件类型的元素的监听方法
+					handle.apply( cur, data );//@ 若有handle, 执行主监听函数并传参data, 注意的是data在前面已经合并了event事件对象(所以包含传参的data与event对象), 所以主监听函数可以使用这传达给监听函数
+					//@ 主监听函数会执行dispatch来实现事件的分发和执行
 				}
 
-				// Native handler
+				// Native handler //???
 				handle = ontype && cur[ ontype ];
+				//@ 执行路径元素上绑定的行内事件监听函数
 				if ( handle && handle.apply && jQuery.acceptData( cur ) ) {
 					event.result = handle.apply( cur, data );
 					if ( event.result === false ) {
+						//@ 若监听函数的返回值是false, 则要阻止默认行为
 						event.preventDefault();
 					}
 				}
 			}
-			event.type = type;
+			event.type = type;//@ 恢复事件属性type, 因为上面for循环中会改变该属性
 
 			// If nobody prevented the default action, do it now
 			if ( !onlyHandlers && !event.isDefaultPrevented() ) {
