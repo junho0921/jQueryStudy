@@ -4450,11 +4450,13 @@
 			}
 			event.type = type;//@ 恢复事件属性type, 因为上面for循环中会改变该属性
 
+			//@ 触发默认行为
 			// If nobody prevented the default action, do it now
 			if ( !onlyHandlers && !event.isDefaultPrevented() ) {
 
 				if ( (!special._default || special._default.apply( eventPath.pop(), data ) === false) &&
 					jQuery.acceptData( elem ) ) {
+					// @ 为何这个时候还要检测elem是否合规范??
 
 					// Call a native DOM method on the target with the same name name as the event.
 					// Don't do default actions on window, that's where global variables be (#6170)
