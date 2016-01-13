@@ -4333,7 +4333,7 @@
 
 			var i, cur, tmp, bubbleType, ontype, handle, special,
 				eventPath = [ elem || document ],//@ 变量eventPath称为"冒泡路径数组", 存放冒泡路径上的元素和事件类型, 先从本元素出发, 但没有的话就以document作为出发点
-				type = hasOwn.call( event, "type" ) ? event.type : event,//@ 若event对象有type属性的话, 表示event是一个原生事件对象或jQuery事件对象, 若event没有type属性, 那么表示event是事件类型字符串
+				type = hasOwn.call( event, "type" ) ? event.type : event,//@ 若event对象有type属性的话, 表示event是一个原生事件对象或jQuery事件对象, 若event没有type属性, 那么表示event是事件类型字符  //@ 这里就为jQuery事件对象和原生事件提供可能性
 				namespaces = hasOwn.call( event, "namespace" ) ? event.namespace.split(".") : [];//@ 若event有namespace属性的话, 表示??
 				//@ 变量bubbleType表示当前事件类型对应的冒泡事件类型
 				//@ 变量ontype: 含有前缀"on"的事件类型, 用于调用对应的行内监听函数
@@ -4357,7 +4357,7 @@
 				type = namespaces.shift();
 				namespaces.sort();
 			}
-			//@ 若事件类型里含有字符":", 那么变量ontype = "on" + type, 用于调用对应的行内监听函数.
+			//@ 若事件类型里不含有字符":", 那么变量ontype = "on" + type, 用于调用对应的行内监听函数. 若type含有":"字符, 不后面调用执行对应的行内事件监听函数
 			ontype = type.indexOf(":") < 0 && "on" + type;
 
 			// Caller can pass in a jQuery.Event object, Object, or just an event type string
@@ -4368,7 +4368,7 @@
 
 			// Trigger bitmask: & 1 for native handlers; & 2 for jQuery (always true)
 			//@ 修正事件对象event的属性
-			event.isTrigger = onlyHandlers ? 2 : 3;
+			event.isTrigger = onlyHandlers ? 2 : 3; //@ 表示正在触发这个事件
 			event.namespace = namespaces.join(".");//@ 添加事件对象命名空间, 区别于原生事件, 是jQuery的添加的event属性
 			event.namespace_re = event.namespace ?
 				new RegExp( "(^|\\.)" + namespaces.join("\\.(?:.*\\.|)") + "(\\.|$)" ) :
@@ -4452,6 +4452,7 @@
 
 			//@ 触发默认行为
 			// If nobody prevented the default action, do it now
+			//@ 若type是自定义事件, 则不会有对应的行内监听函数和默认行为
 			if ( !onlyHandlers && !event.isDefaultPrevented() ) {
 
 				if ( (!special._default || special._default.apply( eventPath.pop(), data ) === false) &&
