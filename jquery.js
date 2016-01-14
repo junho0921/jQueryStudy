@@ -4395,14 +4395,14 @@
 			// Bubble up to document, then to window; watch for a global ownerDocument var (#9724)
 			//@ 构造冒泡路径: 从当前元素出发, 沿着DOM树向上遍历, 构造出一条冒泡路径
 			if ( !onlyHandlers && !special.noBubble && !jQuery.isWindow( elem ) ) {
-				//@ 构造冒泡路径的前提条件: 非onlyHandlers, 修正对象属性noBubble非true(true表示不允许当前事件冒泡), 还有若当前元素是window的话就是最顶部,这就不需要冒泡
-
+				//@ 构造冒泡路径的前提条件: onlyHandlers不为true(true的话指示只触发当前元素的事件监听函数, 不会触发默认行为, 不会模拟冒泡过程), 修正对象属性noBubble非true(true表示不允许当前事件冒泡), 还有若当前元素是window的话就是最顶部,这就不需要冒泡
+				//@ 只有参数onlyHandlers不是true, 并且当前事件允许冒泡, 同时当前元素不是window对象, 才会构造冒泡路径
 				bubbleType = special.delegateType || type;//@ 优先选择修正对象的属性冒泡事件类型, 例如不冒泡的focus对应冒泡的focusin
 				if ( !rfocusMorph.test( bubbleType + type ) ) {
 					cur = cur.parentNode;//@ 一般情况: 初始化变量cur的值为当前元素的父元素, 若test方法检测出事件类型是focus/blur事件,若是手动触发的,浏览器应该自动触发focusin/focusout事件,保持cur=elem
 				}
 				for ( ; cur; cur = cur.parentNode ) {
-					//@ 沿着DOM树向上遍历所有cur的父元素, 把遇到的元素都放入路径数组eventPath: 遍历变量cur, 条件是cur的父元素, 遍历前执行:cur = cur.parentNode
+					//@ 沿着DOM树向上遍历所有cur的父元素, 把遇到的元素都放入路径数组eventPath: 遍历变量cur, 条件是!!cur(直到parentNode属性不存在为止), 每次遍历后都执行:cur = cur.parentNode
 					eventPath.push( cur );
 					tmp = cur;// 取到路径中的最顶层元素
 				}
@@ -4419,28 +4419,30 @@
 			i = 0;
 			// 遍历
 			while ( (cur = eventPath[i++]) && !event.isPropagationStopped() ) {
-				//@ 1, 变量cur指向遍历中的冒泡路径数组eventPath中的一个(从底层向高层方向遍历), 执行变量cur后i变量累加
-				//@ 2, 判断cur是否存在, 而且执行事件对象event的方法isPropagationStopped, 判断是否阻止冒泡(可能在遍历的过程中有某个元素使用了方法event.stopPropogation(),就会使得本event对象的isPropagationStopped返回true)
+				//@ 1, 变量cur指向遍历中的冒泡路径数组eventPath中的一个(从本elem向顶层方向遍历), 执行变量cur后i变量累加
+				//@ 2, 判断cur是否存在, 而且执行事件对象event的方法isPropagationStopped, 判断是否阻止冒泡(可能在遍历的过程中有某个元素使用了方法event.stopPropogation(),就会使得本event对象的isPropagationStopped返回true) //@ 是不是因为共用一个event
 				//@ 遍历冒泡路径数组eventPath, 触发每个元素上的主监听函数和行内监听函数
 
-				//@ 给事件对象添加type属性 = 冒泡事件类型/绑定事件类型/参数提供的事件类型
-				event.type = i > 1 ?//@ 最底层的DOM元素是自身? 所以使用bindType或type事件类型? 其他都使用冒泡事件类型?
+				//@ 修正事件对象的事件类型属性
+				event.type = i > 1 ?//@ eventPath[0]是elem自身, 所以不使用冒泡事件, 使用普通绑定事件
 					bubbleType :
 				special.bindType || type;
 
 				// jQuery handler
 				handle = ( data_priv.get( cur, "events" ) || {} )[ event.type ] && data_priv.get( cur, "handle" );
-				//@ 先执行方法data_priv.get()来获取DOM元素的缓存数据, 再取得这元素所对应事件类型的缓存数据, 若有(表示该元素已绑定了该指定事件类型的事件), 那么取得其缓存数据的主监听函数
+				//@ 先执行方法data_priv.get()来获取DOM元素的缓存数据, 再取得这元素所对应此事件类型的缓存数据, 若有(表示该元素已绑定了该指定事件类型的事件), 那么取得其缓存数据的主监听函数
 				if ( handle ) {
 					//@ 执行有绑定本事件类型的元素的监听方法
 					handle.apply( cur, data );//@ 若有handle, 执行主监听函数并传参data, 注意的是data在前面已经合并了event事件对象(所以包含传参的data与event对象), 所以主监听函数可以使用这传达给监听函数
-					//@ 主监听函数会执行dispatch来实现事件的分发和执行
+					//@ 主监听函数会执行dispatch来实现事件的分发和执行, 接收参数event与其他传递给监听函数的data
 				}
 
 				// Native handler //???
 				handle = ontype && cur[ ontype ];
+				//@ 有行内监听事件类型的话, 取出本对象的行内监听事件对象
 				//@ 执行路径元素上绑定的行内事件监听函数
 				if ( handle && handle.apply && jQuery.acceptData( cur ) ) {
+					//@ 对象的行内监听事件对象有apply属性的话, 且对象是规范的元素, 就执行该行内监听事件 //??? 什么情况下
 					event.result = handle.apply( cur, data );
 					if ( event.result === false ) {
 						//@ 若监听函数的返回值是false, 则要阻止默认行为
@@ -4455,6 +4457,7 @@
 			//@ 若type是自定义事件, 则不会有对应的行内监听函数和默认行为
 			if ( !onlyHandlers && !event.isDefaultPrevented() ) {
 
+				//@ 优先执行修正对象里的_default方法(用于执行特殊的默认行为的方法)
 				if ( (!special._default || special._default.apply( eventPath.pop(), data ) === false) &&
 					jQuery.acceptData( elem ) ) {
 					// @ 为何这个时候还要检测elem是否合规范??
@@ -4462,7 +4465,11 @@
 					// Call a native DOM method on the target with the same name name as the event.
 					// Don't do default actions on window, that's where global variables be (#6170)
 					if ( ontype && jQuery.isFunction( elem[ type ] ) && !jQuery.isWindow( elem ) ) {
+						//@ 执行默认事件方法前必须检查: 对象的ontype属性是function, 不能再window对象上触发默认行为, 因为window对象是定义全局变量的地方
 
+						//@ 执行默认事件方法是elem[ type ](), 但执行之前必须要作临时处理:
+						//@ 1, 需要避免再次触发行内监听函数elem[ ontype ], 所以先要把elem[ ontype ]清空null
+						//@ 2, 为了避免再次触发(通过jQuery事件方法)绑定的监听函数, 先把属性jQuery.event.triggered设置为当前事件类型type
 						// Don't re-trigger an onFOO event when we call its FOO() method
 						tmp = elem[ ontype ];
 
@@ -4473,6 +4480,7 @@
 						// Prevent re-triggering of the same event, since we already bubbled it above
 						jQuery.event.triggered = type;
 						elem[ type ]();
+						//@ 执行完默认事件方法后, 把前面调整的临时行为恢复回来
 						jQuery.event.triggered = undefined;
 
 						if ( tmp ) {
