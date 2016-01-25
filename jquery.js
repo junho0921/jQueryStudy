@@ -4082,6 +4082,7 @@
 	 * Props to Dean Edwards' addEvent library for many of the ideas.
 	 */
 	jQuery.event = {
+		// 底层方法
 
 		global: {},
 
@@ -4711,7 +4712,6 @@
 				type = event.type,
 				originalEvent = event,
 				fixHook = this.fixHooks[ type ];
-			//@ 延伸到fixHooks对象: " fixHooks: {} "L4504
 			//@ jQuery.event.fixHooks 是事件属性修正对象集,用于修正键盘事件和鼠标事件的某些不兼容属性, 优先在该对象集获取本原生事件对象对应的修正对象.
 			//@ 该对象中集中存放了事件类型和修正对象的映射, 修正对象又含有属性props和修正方法filter()
 			//@ fixHooks初始值是一个空对象, 直到初始化事件便捷方法时才被初始化:
@@ -4722,6 +4722,7 @@
 						rkeyEvent.test( type ) ? this.keyHooks :
 						{};//@ 检测是鼠标事件还是键盘事件
 			}
+			//@ 提问: 问题1,为何fixHooks初始是空对象, 我理解是因为保留事件类型的选择只需要mouse/key字符, 问题2,为何不直接合并this.props到mouseHooks.props?
 			copy = fixHook.props ? this.props.concat( fixHook.props ) : this.props;
 			//@ fixhook.props中存放了当前事件的专属属性, this.props指向jQuery.event.props存放了事件的公共属性.
 			//@ 合并公共事件属性和专属事件属性, 因为鼠标/键盘各有专有事件属性,但都有共同属性, 所以需要合并公共的和专属的
@@ -4753,6 +4754,7 @@
 			load: {
 				// Prevent triggered image.load events from bubbling to window.load
 				noBubble: true
+				// 原生事件是不会冒泡的, 但手动触发事件的话会模拟冒泡路径, 所以给load对象添加noBubble属性true来阻止模拟冒泡路径
 			},
 			focus: {
 				// Fire native event if possible so blur/focus sequence is correct
@@ -4763,6 +4765,7 @@
 					}
 				},
 				delegateType: "focusin"
+				// focus事件是不冒泡的, 所以添加blur.delegateType为focusin来修正为支持冒泡的事件
 			},
 			blur: {
 				trigger: function() {
@@ -4772,6 +4775,7 @@
 					}
 				},
 				delegateType: "focusout"
+				// blur事件是不冒泡的, 所以添加blur.delegateType为focusout来修正为支持冒泡的事件
 			},
 			click: {
 				// For checkbox, fire native event so checked state will be right
@@ -4801,35 +4805,42 @@
 		},
 
 		simulate: function( type, elem, event, bubble ) {
+			// simulate模拟事件
+			// 本方法是借助一个原生事件对象或jQuery事件对象, 来为不支持冒泡的事件来模拟冒泡过程. 本方法内部是通过调用方法jQuery.event.trigger来模拟冒泡过程
 			// Piggyback on a donor event to simulate a different one.
 			// Fake originalEvent to avoid donor's stopPropagation, but if the
 			// simulated event prevents default then we do the same on the donor.
 			var e = jQuery.extend(
+				// 用传入的参数event构造一个新的jQuery事件对象. 参数event的属性都复制到新事件对象上, 并修正事件属性为要模拟的事件类型
 				new jQuery.Event(),
 				event,
 				{
 					type: type,
-					isSimulated: true,
-					originalEvent: {}
+					isSimulated: true,//属性isSimulated表示当前事件是一次模拟事件
+					originalEvent: {}//并清空属性originalEvent, 为了避免对新jQuery事件对象方法的调用影响到原生事件
 				}
 			);
 			if ( bubble ) {
+				// 手动触发事件, 模拟冒泡过程
 				jQuery.event.trigger( e, null, elem );
 			} else {
 				jQuery.event.dispatch.call( elem, e );
 			}
 			if ( e.isDefaultPrevented() ) {
+				// 使用参数event,原生事件对象来禁止默认行为
 				event.preventDefault();
 			}
 		}
 	};
 
 	jQuery.removeEvent = function( elem, type, handle ) {
+		// 移除主监听函数
 		if ( elem.removeEventListener ) {
 			elem.removeEventListener( type, handle, false );
 		}
 	};
 
+	// jQuery事件对象的构造函数:
 	jQuery.Event = function( src, props ) {
 		//@ 参数src可以是原生事件类型, 自定义事件类型, 与原生事件对象或jQuery事件对象
 		//@ 参数props是可选的Javascript对象, 其中的属性被设置到新创建的jQuery事件对象上
@@ -4923,6 +4934,7 @@
 // Create mouseenter/leave events using mouseover/out and event-time checks
 // Support: Chrome 15+
 	jQuery.each({
+		//mouseenter与mouseleave是IE引入的事件, 不支持冒泡且兼容差异, 修正为普遍适用且支持冒泡的mouseover,mouseout事件
 		mouseenter: "mouseover",
 		mouseleave: "mouseout",
 		pointerenter: "pointerover",
@@ -4940,6 +4952,8 @@
 
 				// For mousenter/leave call the handler if related is outside the target.
 				// NB: No relatedTarget if the mouse left/entered the browser window
+				//mouseover: 只处理在子元素上触发mouseover,related事件的监听函数, 这里的判断的意义是当鼠标指针从父元素进入子元素时,将会过滤在父元素上触发的mouseout事件和从子元素冒泡到父元素上触发的mouseover事件, 只处理在子元素上触发的mouseover事件
+				//mouseout: 只处理在子元素上触发mouseout事件的监听函数, 这里的判断的意义是当鼠标指针从子元素进入父元素时,将会过滤在从子元素冒泡到父元素的mouseout事件和父元素上触发的mouseover事件, 只处理在子元素上触发的mouseout事件
 				if ( !related || (related !== target && !jQuery.contains( target, related )) ) {
 					event.type = handleObj.origType;
 					ret = handleObj.handler.apply( this, arguments );
@@ -4952,7 +4966,9 @@
 
 // Support: Firefox, Chrome, Safari
 // Create "bubbling" focus and blur events
+	//对于focusin,focusout事件, 非IE浏览器支持不完善, jQuery事件系统通过修正对象模拟实现了这两个事件的监听和冒泡过程, 模拟过程借助了捕获阶段的focus,blur事件
 	if ( !support.focusinBubbles ) {
+		// 若support.focusinBubbles为false, 表示focusin事件不会冒泡
 		jQuery.each({ focus: "focusin", blur: "focusout" }, function( orig, fix ) {
 
 			// Attach a single capturing handler on the document while someone wants focusin/focusout
@@ -4966,6 +4982,7 @@
 						attaches = data_priv.access( doc, fix );
 
 					if ( !attaches ) {
+						// 若是第一次绑定或代理focusin,focusout事件时, 修正方法setup在document对象上为focus,blur事件绑定一个特殊的捕获阶段的主监听函数(其调用方法$.event.simulate来模拟冒泡过程)
 						doc.addEventListener( orig, handler, true );
 					}
 					data_priv.access( doc, fix, ( attaches || 0 ) + 1 );
