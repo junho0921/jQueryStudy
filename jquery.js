@@ -4223,6 +4223,7 @@
 				//@ 记录绑定过的事件类型.当某个事件被手动触发, 可以方便通过这个标记来检查是否绑定过该类型的事件.
 				jQuery.event.global[ type ] = true;
 			}
+			console.log('数据缓存', data_priv.cache)
 
 		},
 
@@ -4967,6 +4968,7 @@
 // Support: Firefox, Chrome, Safari
 // Create "bubbling" focus and blur events
 	//对于focusin,focusout事件, 非IE浏览器支持不完善, jQuery事件系统通过修正对象模拟实现了这两个事件的监听和冒泡过程, 模拟过程借助了捕获阶段的focus,blur事件
+
 	if ( !support.focusinBubbles ) {
 		// 若support.focusinBubbles为false, 表示focusin事件不会冒泡
 		jQuery.each({ focus: "focusin", blur: "focusout" }, function( orig, fix ) {

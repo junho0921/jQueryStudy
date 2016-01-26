@@ -6,30 +6,61 @@
 </head>
 <script src="jquery.js"></script>
 <body>
-<button>按钮</button>
+<input class="txt" type="text"/>
+<button class="btn1">按钮1</button>
+<button class="btn2">按钮2</button>
+
+<div class="t1">
+	<div class="t2">
+		<div class="t3">
+			<input  class="t4" type="text" placeholder="中心"/>
+		</div>
+	</div>
+</div>
 <script>
 $(function(){
-	$('button').on('click.tst.h.2 ', function(){
-		console.log('click func')
+//	$('.btn1').on('click', function(){
+//		this.ui = $('.txt').val();
+//		console.log('click func1', this, this.ui);
+//	});
+//	$('.btn2').on('click', function(){
+//		console.log('click func2', $('.btn1')[0], $('.btn1')[0].ui);
+//		console.log('click func2', document.getElementsByClassName('btn1')[0].ui);
+//
+//	});
+
+//	$('.t4').focus(function(){
+//		console.log('focus input text')
+//	})
+	console.log('special', jQuery.event.special);
+	$('.t3').on("focus", '.t4', function(){
+		console.log('focus input text = ', $(this).val())
+	});
+	console.log('special', jQuery.event.special);
+	$('.t3').on("focus", '.t4', function(){
+		console.log('focus input text = ', $(this).val())
 	});
 
+	console.log('special', jQuery.event.special);
+	$('.t3').on("click", '.t4', function(){
+		console.log('focus input text = ', $(this).val())
+	});
 
-	console.log('------check jQuery.event.special');
-	for(var prop in jQuery.event.special){
-		var value = jQuery.event.special[prop];
-		console.log(prop, value);
-		console.log(!value.add);
-//		console.log(!value.setup)
-		console.warn(' ')
-	}
-	console.log('------check jQuery.event.special');
-
-	var rnotwhite = (/\S+/g);
-
-	var types = 'click  tap';
-	types = ( types || "" ).match( rnotwhite ) || [ "" ];//@ 若types是undefined, 没有传值, 那么types会重新赋值为[""]新数值,长度是1
-	t = types.length;
-	console.log('types', types, t)
+//	console.log('------check jQuery.event.special');
+//	for(var prop in jQuery.event.special){
+//		var value = jQuery.event.special[prop];
+//		console.log(prop, value);
+//		console.log(!value.add);
+//		console.warn(' ')
+//	}
+//	console.log('------check jQuery.event.special');
+//
+//	var rnotwhite = (/\S+/g);
+//
+//	var types = 'click  tap';
+//	types = ( types || "" ).match( rnotwhite ) || [ "" ];//@ 若types是undefined, 没有传值, 那么types会重新赋值为[""]新数值,长度是1
+//	t = types.length;
+//	console.log('types', types, t)
 });
 </script>
 </body>
