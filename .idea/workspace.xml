@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="d9774a23-0d25-447a-8575-2be01deb63a7" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/console.html" afterPath="$PROJECT_DIR$/console.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jquery.js" afterPath="$PROJECT_DIR$/jquery.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="jQuery.iws" />
@@ -24,14 +23,14 @@
     <favorites_list name="jQuery" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="vertical" split-proportion="0.23834197">
+    <splitter split-orientation="vertical" split-proportion="0.7473904">
       <split-first>
         <leaf>
           <file leaf-file-name="jquery.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/jquery.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="1.6279069">
-                  <caret line="4191" column="48" selection-start-line="4191" selection-start-column="48" selection-end-line="4191" selection-end-column="48" />
+                <state vertical-scroll-proportion="0.475">
+                  <caret line="4579" column="21" selection-start-line="4579" selection-start-column="21" selection-end-line="4579" selection-end-column="21" />
                   <folding>
                     <element signature="n#!!doc" expanded="true" />
                   </folding>
@@ -43,7 +42,7 @@
             <entry file="file://$PROJECT_DIR$/console.html">
               <provider selected="true" editor-type-id="text-editor">
                 <state vertical-scroll-proportion="0.0">
-                  <caret line="35" column="10" selection-start-line="35" selection-start-column="10" selection-end-line="35" selection-end-column="10" />
+                  <caret line="28" column="43" selection-start-line="28" selection-start-column="43" selection-end-line="28" selection-end-column="43" />
                   <folding />
                 </state>
               </provider>
@@ -56,8 +55,8 @@
           <file leaf-file-name="jquery.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/jquery.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.6776034">
-                  <caret line="4587" column="0" selection-start-line="4587" selection-start-column="0" selection-end-line="4587" selection-end-column="0" />
+                <state vertical-scroll-proportion="0.0">
+                  <caret line="4578" column="25" selection-start-line="4578" selection-start-column="25" selection-end-line="4578" selection-end-column="25" />
                   <folding>
                     <element signature="n#!!doc" expanded="true" />
                   </folding>
@@ -85,8 +84,8 @@
         <option value="D:/用户目录/Desktop/nuui说明文档/nuui.html" />
         <option value="D:/用户目录/Desktop/demoForDatepicler/js/nuui-utils.js" />
         <option value="D:/用户目录/Desktop/test.html" />
-        <option value="$PROJECT_DIR$/console.html" />
         <option value="$PROJECT_DIR$/jquery.js" />
+        <option value="$PROJECT_DIR$/console.html" />
       </list>
     </option>
   </component>
@@ -98,10 +97,8 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="359" />
-    <option name="y" value="31" />
-    <option name="width" value="1561" />
-    <option name="height" value="1049" />
+    <option name="width" value="1285" />
+    <option name="height" value="1040" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -324,7 +321,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="359" y="31" width="1561" height="1049" extended-state="0" />
+    <frame x="0" y="0" width="1285" height="1040" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24877651" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -382,6 +379,42 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/console.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="28" column="43" selection-start-line="28" selection-start-column="43" selection-end-line="28" selection-end-column="43" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/jquery.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/console.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="35" column="10" selection-start-line="35" selection-start-column="10" selection-end-line="35" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/jquery.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/jquery.js">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -644,13 +677,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://D:/用户目录/Desktop/demoForDatepicler/js/nuui-utils.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="22" column="53" selection-start-line="22" selection-start-column="53" selection-end-line="22" selection-end-column="53" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/jquery.js">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -658,13 +684,6 @@
           <folding>
             <element signature="n#!!doc" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://D:/用户目录/Desktop/demoForDatepicler/js/nuui-utils.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="22" column="53" selection-start-line="22" selection-start-column="53" selection-end-line="22" selection-end-column="53" />
         </state>
       </provider>
     </entry>
@@ -775,18 +794,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/说明图/jQuery.event.add.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://D:/用户目录/Desktop/demoForDatepicler/js/nuui-utils.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="22" column="53" selection-start-line="22" selection-start-column="53" selection-end-line="22" selection-end-column="53" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/lib/JavaScriptLanguage.jar!/com/intellij/lang/javascript/index/predefined/DOMEvents.js">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.3322933">
@@ -808,25 +815,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://D:/用户目录/Desktop/test.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-23.8">
-          <caret line="102" column="24" selection-start-line="102" selection-start-column="24" selection-end-line="102" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/console.html">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="35" column="10" selection-start-line="35" selection-start-column="10" selection-end-line="35" selection-end-column="10" />
+          <caret line="28" column="43" selection-start-line="28" selection-start-column="43" selection-end-line="28" selection-end-column="43" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/jquery.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6776034">
-          <caret line="4587" column="0" selection-start-line="4587" selection-start-column="0" selection-end-line="4587" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.475">
+          <caret line="4579" column="21" selection-start-line="4579" selection-start-column="21" selection-end-line="4579" selection-end-column="21" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
           </folding>

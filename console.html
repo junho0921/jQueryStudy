@@ -19,7 +19,25 @@
 </div>
 <script>
 $(function(){
-//	$('.btn1').on('click', function(){
+
+
+	$('.btn1').on('click', function(e){
+		console.log('click func1', e.result);
+		return e.result || 1;
+	});
+	$('.btn1').on('click', function(e){
+		console.log('click func2', e.result);
+
+		return 2;
+	});
+	$('.btn1').on('click', function(e){
+		console.log('click func3', e.result);
+		return e.result++;
+	});
+
+
+
+//	$('.btn1').on('click', function(e){
 //		this.ui = $('.txt').val();
 //		console.log('click func1', this, this.ui);
 //	});
