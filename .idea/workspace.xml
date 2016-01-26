@@ -24,14 +24,14 @@
     <favorites_list name="jQuery" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="vertical" split-proportion="0.5792746">
+    <splitter split-orientation="vertical" split-proportion="0.23834197">
       <split-first>
         <leaf>
           <file leaf-file-name="jquery.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/jquery.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.43129772">
-                  <caret line="4624" column="29" selection-start-line="4624" selection-start-column="29" selection-end-line="4624" selection-end-column="29" />
+                <state vertical-scroll-proportion="1.6279069">
+                  <caret line="4191" column="48" selection-start-line="4191" selection-start-column="48" selection-end-line="4191" selection-end-column="48" />
                   <folding>
                     <element signature="n#!!doc" expanded="true" />
                   </folding>
@@ -42,8 +42,8 @@
           <file leaf-file-name="console.html" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/console.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="-13.866667">
-                  <caret line="41" column="7" selection-start-line="41" selection-start-column="7" selection-end-line="41" selection-end-column="7" />
+                <state vertical-scroll-proportion="0.0">
+                  <caret line="35" column="10" selection-start-line="35" selection-start-column="10" selection-end-line="35" selection-end-column="10" />
                   <folding />
                 </state>
               </provider>
@@ -56,8 +56,8 @@
           <file leaf-file-name="jquery.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/jquery.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.49866667">
-                  <caret line="4193" column="29" selection-start-line="4193" selection-start-column="29" selection-end-line="4193" selection-end-column="46" />
+                <state vertical-scroll-proportion="0.6776034">
+                  <caret line="4587" column="0" selection-start-line="4587" selection-start-column="0" selection-end-line="4587" selection-end-column="0" />
                   <folding>
                     <element signature="n#!!doc" expanded="true" />
                   </folding>
@@ -85,8 +85,8 @@
         <option value="D:/用户目录/Desktop/nuui说明文档/nuui.html" />
         <option value="D:/用户目录/Desktop/demoForDatepicler/js/nuui-utils.js" />
         <option value="D:/用户目录/Desktop/test.html" />
-        <option value="$PROJECT_DIR$/jquery.js" />
         <option value="$PROJECT_DIR$/console.html" />
+        <option value="$PROJECT_DIR$/jquery.js" />
       </list>
     </option>
   </component>
@@ -314,7 +314,13 @@
       <option name="project" value="LOCAL" />
       <updated>1453719841193</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="收工">
+      <created>1453803414216</created>
+      <option name="number" value="00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1453803414216</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -326,19 +332,19 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32815734" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -366,7 +372,8 @@
     <MESSAGE value="保存" />
     <MESSAGE value="看完trigger, 原来触发原生事件的方法是这样" />
     <MESSAGE value="第三次看" />
-    <option name="LAST_COMMIT_MESSAGE" value="第三次看" />
+    <MESSAGE value="收工" />
+    <option name="LAST_COMMIT_MESSAGE" value="收工" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -805,22 +812,21 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-23.8">
           <caret line="102" column="24" selection-start-line="102" selection-start-column="24" selection-end-line="102" selection-end-column="24" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/console.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-13.866667">
-          <caret line="41" column="7" selection-start-line="41" selection-start-column="7" selection-end-line="41" selection-end-column="7" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="35" column="10" selection-start-line="35" selection-start-column="10" selection-end-line="35" selection-end-column="10" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/jquery.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.43129772">
-          <caret line="4624" column="29" selection-start-line="4624" selection-start-column="29" selection-end-line="4624" selection-end-column="29" />
+        <state vertical-scroll-proportion="0.6776034">
+          <caret line="4587" column="0" selection-start-line="4587" selection-start-column="0" selection-end-line="4587" selection-end-column="0" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
           </folding>

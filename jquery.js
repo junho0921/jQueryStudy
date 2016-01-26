@@ -4185,6 +4185,8 @@
 					namespace: namespaces.join(".")//@ 排序后的命名空间字符串
 				}, handleObjIn );
 
+				console.log('add method', jQuery.expr.match.needsContext, jQuery.expr.match.needsContext.test( selector ));
+
 				// Init the event handler queue if we're the first
 				if ( !(handlers = events[ type ]) ) {
 					//@ 取出本DOM对象里的绑定事件的数据缓存对象events里该事件type的内容
@@ -4599,8 +4601,9 @@
 			// Avoid non-left-click bubbling in Firefox (#3861)
 			if ( delegateCount && cur.nodeType && (!event.button || event.type !== "click") ) {
 				//@ 先从delegateCount检测当前元素有无绑定代理事件, 后检测当前元素的DOM标签??(书上说: 检查后代元素与监听对象的选择器表达式是否匹配), 后检测事件属性是否有button或事件类型非"click"
-
+				//@ (!event.button || event.type !== "click")这意思当左击或非点击事件都返回true, 因为左击的话event.button为0
 				//@ 使用两层for循环提取后代元素匹配的代理监听函数对象数组:
+				//@ 以事件对象为初始对象, 模拟冒泡路径
 				for ( ; cur !== this; cur = cur.parentNode || this ) {
 					//@ 第一层for循环遍历从触发事件的元素到代理元素这条路径上的所有后代元素, cur指向代理元素的某个后代元素
 					// Don't process clicks on disabled elements (#6911, #8165, #11382, #11764)
