@@ -19,7 +19,11 @@
 </div>
 <script>
 $(function(){
-
+var xxrfocusMorph = /^(?:focusinfocus|focusoutblur)$/;
+	var name ="blur"
+	console.warn(
+			xxrfocusMorph.test( name )
+	);
 
 	$('.btn1').on('click', function(e){
 		console.log('click func1', e.result);

@@ -4590,7 +4590,9 @@
 		},
 
 		handlers: function( event, handlers ) {
-			//@ 提取后代元素匹配的代理监听对象数组: 如果为当前元素绑定了代理事件, 则提取后代元素匹配的代理监听对象数组
+			//@ 本方法是计算执行队列, 包括本元素elem的代理监听绑定和普通监听绑定
+			//@ 先提取后代元素匹配的代理监听对象数组: 如果为当前元素绑定了代理事件, 则提取后代元素匹配的代理监听对象数组
+			//@ 思考: handlers里存放里监听对象, 但不是立即执行的, 需要找到每个监听对象的执行对象, 而且是给监听对象们有序执行, 所以handlerQueue的意义是把监听对象按照执行对象分类, 现在是确实有执行对象elem, 所以对于普通绑定事件找对象是不成问题的, 要处理的是代理监听对象找到确实存在且在冒泡路径上的执行对象!
 			var i, matches, sel, handleObj,
 				handlerQueue = [],
 				delegateCount = handlers.delegateCount,
@@ -4608,7 +4610,7 @@
 					//@ 第一层for循环遍历从触发事件的元素到代理元素这条路径上的所有后代元素, cur指向代理元素的某个后代元素
 					// Don't process clicks on disabled elements (#6911, #8165, #11382, #11764)
 					if ( cur.disabled !== true || event.type !== "click" ) {
-						matches = [];// 称matches为匹配结果数组, 先清空
+						matches = [];// 重置数组matches, 作用是储存匹配本对象cur与监听对象选择器的结果
 						//@ matches是用于存储后代元素与代理监听对象的选择器表达式的所有匹配结果
 						for ( i = 0; i < delegateCount; i++ ) {
 							//@ 第二层for循环为每个后代元素遍历代理元素的代理监听对象素组, 把后代元素匹配的代理监听对象存储到数组matched中
