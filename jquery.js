@@ -180,6 +180,7 @@
 			i = 1,
 			length = arguments.length,
 			deep = false;
+		//lg2('extend funciton ', target, length, this);
 
 		// Handle a deep copy situation
 		if ( typeof target === "boolean" ) {
@@ -2731,10 +2732,11 @@
 	// Prioritize #id over <tag> to avoid XSS via location.hash (#9521)
 	// Strict HTML recognition (#11290: must start with <)
 		rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]*))$/,
+	//@ 正则rquickExpr包含两个分组, 依次匹配HTML代码和id. 若匹配成功, 数组match的一个元素为参数selector, 第二个元素为匹配的HTML代码或undefined, 第三个元素为匹配的id或undefined, 匹配的效果请见书本16页
 
 		init = jQuery.fn.init = function( selector, context ) {
+			// 接收的参数类型一共有12种
 			var match, elem;
-
 			// HANDLE: $(""), $(null), $(undefined), $(false)
 			if ( !selector ) {
 				return this;
@@ -2742,6 +2744,7 @@
 
 			// Handle HTML strings
 			if ( typeof selector === "string" ) {
+				//@ 先对参数selector字符串作解析, 正则检验出带有<>字符的html标签与id,所以match是表示检验出标签与id的结果, 而且不可能是id与标签同时有
 				if ( selector[0] === "<" && selector[ selector.length - 1 ] === ">" && selector.length >= 3 ) {
 					// Assume that strings that start and end with <> are HTML and skip the regex check
 					match = [ null, selector, null ];
@@ -2754,7 +2757,8 @@
 				if ( match && (match[1] || !context) ) {
 
 					// HANDLE: $(html) -> $(array)
-					if ( match[1] ) {
+					if ( match[1] ) {//@ selector字符中抽出的HTML标签处理
+						//@ 创建HTML元素?
 						context = context instanceof jQuery ? context[0] : context;
 
 						// Option to run scripts is true for back-compat
@@ -2782,7 +2786,7 @@
 						return this;
 
 						// HANDLE: $(#id)
-					} else {
+					} else {//@ selector字符中没有HTML标签但有id选择器, 注意的是不能有context的, 以为id是直接对于document有意义的
 						elem = document.getElementById( match[2] );
 
 						// Support: Blackberry 4.6
@@ -2799,7 +2803,11 @@
 					}
 
 					// HANDLE: $(expr, $(...))
-				} else if ( !context || context.jquery ) {
+				} else
+				//@以下两种情况都是selector是css选择器字符串的情况:
+				if ( !context || context.jquery ) {
+					//@ $('.xxx')
+					//@ 使用sizzle的方法查找对象
 					return ( context || rootjQuery ).find( selector );
 
 					// HANDLE: $(expr, context)
@@ -2809,14 +2817,14 @@
 				}
 
 				// HANDLE: $(DOMElement)
-			} else if ( selector.nodeType ) {
+			} else if ( selector.nodeType ) {//@ 对象是有文本noType的, 那么如window, document, document.body
 				this.context = this[0] = selector;
 				this.length = 1;
 				return this;
 
 				// HANDLE: $(function)
 				// Shortcut for document ready
-			} else if ( jQuery.isFunction( selector ) ) {
+			} else if ( jQuery.isFunction( selector ) ) {//@ 对象是function的话, 那么调用$(document).ready(function(){})
 				return typeof rootjQuery.ready !== "undefined" ?
 					rootjQuery.ready( selector ) :
 					// Execute immediately if ready is not present
@@ -2824,6 +2832,7 @@
 			}
 
 			if ( selector.selector !== undefined ) {
+				//@ 若接收的对象是jQuery对象的话, 那么这个新构建对象的属性指向selector的
 				this.selector = selector.selector;
 				this.context = selector.context;
 			}
@@ -2832,7 +2841,7 @@
 		};
 
 // Give the init function the jQuery prototype for later instantiation
-	init.prototype = jQuery.fn;
+	init.prototype = jQuery.fn;//@ 提供了每个jQuery对象都可以使用jQuery的原型方法
 
 // Initialize central reference
 	rootjQuery = jQuery( document );
@@ -3580,7 +3589,9 @@
 
 			// Ensure the cache object
 			if ( !this.cache[ unlock ] ) {
-				this.cache[ unlock ] = {};
+				this.cache[ unlock ] = {
+					elem:owner
+				};
 			}
 
 			return unlock;
@@ -4185,7 +4196,7 @@
 					namespace: namespaces.join(".")//@ 排序后的命名空间字符串
 				}, handleObjIn );
 
-				console.log('add method', jQuery.expr.match.needsContext, jQuery.expr.match.needsContext.test( selector ));
+				console.log('needsContext 作用', jQuery.expr.match.needsContext, jQuery.expr.match.needsContext.test( ':even' ));
 
 				// Init the event handler queue if we're the first
 				if ( !(handlers = events[ type ]) ) {
@@ -4199,6 +4210,7 @@
 					//@ 绑定主监听函数eventHandle:
 					if ( !special.setup || special.setup.call( elem, data, namespaces, eventHandle ) === false ) {//@ 优先调用修改对象的修正方法setup()
 						if ( elem.addEventListener ) {
+							console.log('绑定监听函数addEventListener', elem, type);
 							elem.addEventListener( type, eventHandle, false );//@ 没有sepcial的话,使用addEventListener绑定主监听函数
 						}
 					}
@@ -4416,6 +4428,7 @@
 				if ( tmp === (elem.ownerDocument || document) ) {
 					eventPath.push( tmp.defaultView || tmp.parentWindow || window );
 				}
+				console.log('冒泡路径', eventPath);
 				//@ 至此, 冒泡路径构造完毕
 			}
 
@@ -4434,6 +4447,7 @@
 
 				// jQuery handler
 				handle = ( data_priv.get( cur, "events" ) || {} )[ event.type ] && data_priv.get( cur, "handle" );
+
 				//@ 先执行方法data_priv.get()来获取DOM元素的缓存数据, 再取得这元素所对应此事件类型的缓存数据, 若有(表示该元素已绑定了该指定事件类型的事件), 那么取得其缓存数据的主监听函数
 				if ( handle ) {
 					//@ 执行有绑定本事件类型的元素的监听方法
@@ -4498,6 +4512,7 @@
 		},
 
 		dispatch: function( event ) {
+			console.log('dispatch event', event.type);
 			//@ 事件响应
 			//@ 浏览器触发事件: 任何绑定的方法都会被触发
 			//@ 手动触发事件: 
@@ -4816,6 +4831,7 @@
 			// Piggyback on a donor event to simulate a different one.
 			// Fake originalEvent to avoid donor's stopPropagation, but if the
 			// simulated event prevents default then we do the same on the donor.
+			console.log('simulate');
 			var e = jQuery.extend(
 				// 用传入的参数event构造一个新的jQuery事件对象. 参数event的属性都复制到新事件对象上, 并修正事件属性为要模拟的事件类型
 				new jQuery.Event(),
@@ -5307,8 +5323,9 @@
 		},
 
 		buildFragment: function( elems, context, scripts, selection ) {
+			//@ 参数context是文档对象
 			var elem, tmp, tag, wrap, contains, j,
-				fragment = context.createDocumentFragment(),
+				fragment = context.createDocumentFragment(),// 先创建一个文档片段, 不属于文档树
 				nodes = [],
 				i = 0,
 				l = elems.length;
@@ -5326,36 +5343,43 @@
 
 						// Convert non-html into a text node
 					} else if ( !rhtml.test( elem ) ) {
+						//@ 若elem不包含标签,字符代码和数字代码, 则调用原生方法createTextNode来创建文本节点
 						nodes.push( context.createTextNode( elem ) );
 
 						// Convert html into DOM nodes
 					} else {
 						tmp = tmp || fragment.appendChild( context.createElement("div") );
+						//@ 先在安全文档片段fragment里设置临时div
+						//@ 要清除: 当把文档片段fragment插入到文档树时, 插入的不是DocumentFragment自身, 而是它的所有子孙节点
 
 						// Deserialize a standard representation
+						//@ 提取HTML代码中的标签部分
 						tag = ( rtagName.exec( elem ) || [ "", "" ] )[ 1 ].toLowerCase();
+						//@ 在修正数组wrapMap里获取标签tag对应的父标签, 这是必须的
 						wrap = wrapMap[ tag ] || wrapMap._default;
 						tmp.innerHTML = wrap[ 1 ] + elem.replace( rxhtmlTag, "<$1></$2>" ) + wrap[ 2 ];
+						//@ 正则rxhtmlTag过滤不需要处理的html标签
+						//@ elem.replace( rxhtmlTag, "<$1></$2>" )这代码是用来修正自关闭标签, 例子: elem = "<div/>"修正后输出"<div></div>"
 
 						// Descend through wrappers to the right content
 						j = wrap[ 0 ];
 						while ( j-- ) {
+							//@ 使用while循环层层剥去包裹的父元素, 这里会剥离wrapMap添加的父标签
 							tmp = tmp.lastChild;
 						}
-
 						// Support: QtWebKit, PhantomJS
 						// push.apply(_, arraylike) throws on ancient WebKit
+						// 把生成的html内容放进nodes数组里
 						jQuery.merge( nodes, tmp.childNodes );
 
 						// Remember the top-level container
 						tmp = fragment.firstChild;
 
 						// Ensure the created nodes are orphaned (#12392)
-						tmp.textContent = "";
+						tmp.textContent = "";//@ 清空文本片段, 避免占用内存
 					}
 				}
 			}
-
 			// Remove wrapper from fragment
 			fragment.textContent = "";
 
@@ -5372,7 +5396,6 @@
 
 				// Append to fragment
 				tmp = getAll( fragment.appendChild( elem ), "script" );
-
 				// Preserve script evaluation history
 				if ( contains ) {
 					setGlobalEval( tmp );
@@ -9034,10 +9057,11 @@
 			scripts = !keepScripts && [];
 
 		// Single tag
-		if ( parsed ) {
+		if ( parsed ) {// 检测data是否是简单的一个标签, 如"<span>", 使用createElement方法新建元素
+			lg4('this is single tag', data);
 			return [ context.createElement( parsed[1] ) ];
 		}
-
+		//复杂的标签是"<span><i></i></span>", 那么使用innerHTML机制创建DOM元素
 		parsed = jQuery.buildFragment( [ data ], context, scripts );
 
 		if ( scripts && scripts.length ) {

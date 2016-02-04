@@ -2,88 +2,43 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Document</title>
+	<title>jQuery</title>
+	<style>
+		div{margin:2px; padding:35px; background: rgba(250, 0, 0, 0.2);}
+		input, button{ font-size: 60px;border: 4px solid lightgoldenrodyellow; width: 100%}
+		input:focus{background: lightsteelblue; border: 4px solid lightseagreen}
+	</style>
 </head>
-<script src="jquery.js"></script>
 <body>
-<input class="txt" type="text"/>
-<button class="btn1">按钮1</button>
-<button class="btn2">按钮2</button>
-
-<div class="t1">
-	<div class="t2">
-		<div class="t3">
-			<input  class="t4" type="text" placeholder="中心"/>
+	<div class="container">
+		<div class="t1">
+			<div class="t2">
+				<div class="t3">
+					<input class="txt" type="text"/>
+					<input class="txt" type="text"/>
+				</div>
+			</div>
+			<input id="xInput" type="text"/>
 		</div>
+		<br/>
+		<button class="btn">focus input</button>
 	</div>
-</div>
-<script>
-$(function(){
-var xxrfocusMorph = /^(?:focusinfocus|focusoutblur)$/;
-	var name ="blur"
-	console.warn(
-			xxrfocusMorph.test( name )
-	);
 
-	$('.btn1').on('click', function(e){
-		console.log('click func1', e.result);
-		return e.result || 1;
-	});
-	$('.btn1').on('click', function(e){
-		console.log('click func2', e.result);
-
-		return 2;
-	});
-	$('.btn1').on('click', function(e){
-		console.log('click func3', e.result);
-		return e.result++;
-	});
+	<script src="./otherJs/console.js"></script>
+	<script src="jquery.js"></script>
+	<script>
+		console.error('start');
+		$(function(){
+//			var sb = {};
+//			$.extend(sb, {addMoreAttr:'s'});lg5('sb', sb)
+//			$('<span>nihao</span>');
 
 
+			$('<script class="nnn">');
 
-//	$('.btn1').on('click', function(e){
-//		this.ui = $('.txt').val();
-//		console.log('click func1', this, this.ui);
-//	});
-//	$('.btn2').on('click', function(){
-//		console.log('click func2', $('.btn1')[0], $('.btn1')[0].ui);
-//		console.log('click func2', document.getElementsByClassName('btn1')[0].ui);
-//
-//	});
-
-//	$('.t4').focus(function(){
-//		console.log('focus input text')
-//	})
-	console.log('special', jQuery.event.special);
-	$('.t2').on("focus", '.t4', function(){
-		console.log('focus input text = ', $(this).val())
-	});
-//	console.log('special', jQuery.event.special);
-//	$('.t3').on("focus", '.t4', function(){
-//		console.log('focus input text = ', $(this).val())
-//	});
-//
-//	console.log('special', jQuery.event.special);
-//	$('.t3').on("click", '.t4', function(){
-//		console.log('focus input text = ', $(this).val())
-//	});
-
-//	console.log('------check jQuery.event.special');
-//	for(var prop in jQuery.event.special){
-//		var value = jQuery.event.special[prop];
-//		console.log(prop, value);
-//		console.log(!value.add);
-//		console.warn(' ')
-//	}
-//	console.log('------check jQuery.event.special');
-//
-//	var rnotwhite = (/\S+/g);
-//
-//	var types = 'click  tap';
-//	types = ( types || "" ).match( rnotwhite ) || [ "" ];//@ 若types是undefined, 没有传值, 那么types会重新赋值为[""]新数值,长度是1
-//	t = types.length;
-//	console.log('types', types, t)
-});
-</script>
+//			lg1('map', $('.txt'))
+		});
+	</script>
+	<!--<script src="testEvent.js"></script>-->
 </body>
 </html>
